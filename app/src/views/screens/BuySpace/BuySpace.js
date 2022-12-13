@@ -5,36 +5,33 @@ import {
   ScrollView,
   StatusBar,
   StyleSheet,
-  Button,
+
   Image,
   useColorScheme,
   View,
   Dimensions,
   TouchableOpacity,
   ImageBackground,
+  TextInput,
   FlatList,
   TouchableWithoutFeedback
 } from 'react-native';
 import {
   Text,
-
+  Button,
   Snackbar,
   Headline,
   ActivityIndicator,
   Colors,
   TouchableRipple,
   Paragraph,
-  Appbar,
-  TextInput,
-  List,
-  Divider
+  Appbar
 } from 'react-native-paper';
 import VideoPlayer from 'react-native-video-player';
 import COLORS from '../../../consts/colors';
 import base_url from '../../../consts/base_url';
 import image_url from '../../../consts/image_url';
 import STYLES from '../../../styles';
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import LoginHeader from '../../../components/logins_comp/LoginHeader';
@@ -51,73 +48,98 @@ import RBSheet from "react-native-raw-bottom-sheet";
 import BrickList from 'react-native-masonry-brick-list';
 import styles from './styles';
 import { WebView } from 'react-native-webview';
-import { StripeProvider, CardField, useConfirmPayment } from '@stripe/stripe-react-native';
-import { IgnorePattern } from 'react-native/Libraries/LogBox/LogBox';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
-function Sponser({ route, navigation }) {
-  const {item } = route.params;
+function BuySpace({ route, navigation }) {
+  const webviewRef = useRef();
+
+  const refRBSheetTags = useRef();
+  const { 
+        sponser_id,
+        price,
+        user_id,
+        share_name,
+        space_want
+   } = route.params;
+
+  const [cat_id, setCat_id] = useState('');
+  
+  const [comment, setComment] = useState('');
+  const [saved, setSaved] = useState(0);
+  const [liked, setLiked] = useState(0);
+  // bottom sheet 
+  const refRBSheet = useRef();
+  
+  // bottom sheet end
   // snackbar
-  const [data, setData] = useState([]);
-  const [data2, setData2] = useState([]);
-  const [negociate, setNegociate] = useState('');
-  const [name, setName] = useState('');
-  const [contact, setContact] = useState('');
-  const [comments, setComments] = useState('');
   const [visible, setVisible] = useState(false);
-  const [active, setActive] = useState('');
+  const [loading, setloading] = useState(false);
   const [snackDetails, setSnackDetails] = useState({
     text: '',
     backgroundColor: '',
   });
+
   const onToggleSnackBar = () => setVisible(!visible);
   const onDismissSnackBar = () => setVisible(false);
-  
-  
-  const getAllbyPlayer = async () => {
-    setActive('player')
-    var InsertAPIURL = base_url + '/agencia/getAllbyPlayer.php';
-    var headers = {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    };
 
-    await fetch(InsertAPIURL, {
-      method: 'GET',
-      headers: headers,
+  // flatlsit end
+  // send data to webview
+  function sendDataToWebView() {
+    webviewRef.current.postMessage('Data from React Native App');
+  }
 
-    })
-      .then(response => response.json())
-      .then(response => {
-        setData(response);
-      })
-      .catch(error => {
-        alert('this is error' + error);
-      });
-  };
+  function onMessage(data) {
+    if(data.nativeEvent.data=='record_updated'){
+      navigation.navigate('Sponser')
+    }
+  }
   
+  
+  
+  
+
+  
+
+
+  
+  
+  // get user data from async storage
+  // const getData = async () => {
+  //   try {
+  //     const jsonValue = await AsyncStorage.getItem('userDetail')
+  //     const data = JSON.parse(jsonValue)
+  //     setUser_id(data.id)
+
+  //   } catch (e) {
+  //     alert('Failed to fetch the data from storage')
+  //   }
+  // }
   useEffect(() => {
-    // getAllbyPlayer();
+
+    // getData()
+    // sendDataToWebView()
   }, []);
   return (
 
 
-    <View
-    style={{
-      flex: 1,
-      backgroundColor: COLORS.dark
-    }}
+    <SafeAreaView
+      style={{
+
+        backgroundColor: COLORS.dark,
+        flex: 1,
+      }}
     >
       <Snackbar
         visible={visible}
         style={{
           zIndex: 999,
           backgroundColor: snackDetails.backgroundColor,
+          marginBottom: '15%',
         }}
 
-        duration={2000}
+        duration={1000}
         onDismiss={onDismissSnackBar}
       >
         {snackDetails.text}
@@ -128,44 +150,39 @@ function Sponser({ route, navigation }) {
         }}
       >
         <Appbar.BackAction onPress={() => {
-          navigation.goBack()
+            navigation.goBack()
         }}
         />
-        <Appbar.Content title="Sponsor to Player"
-        subtitle={item.name+' , '+ item.price+'$'}
+        <Appbar.Content title="Sponser Space"
+        // subtitle="News Details"
         />
-        {/* <Appbar.Action icon="plus" onPress={() => { }} /> */}
+
+
       </Appbar.Header>
-      
-        <TextInput
-          style={[styles.txtInpt,{
-            marginTop: 30,
-          }]}
-          color={'white'}
-          placeholder="Negociate"
-          placeholderTextColor={COLORS.dark}
-          underlineColor={COLORS.primary}
-          activeUnderlineColor={COLORS.primary}
-          onChangeText={(text) => setNegociate(text)}
-          value={negociate}
-        />
-        <TextInput
-          style={[styles.txtInpt,{
-            marginTop: 20,
-          }]}
-          color={'white'}
-          placeholder="Name"
-          placeholderTextColor={COLORS.dark}
-          underlineColor={COLORS.primary}
-          activeUnderlineColor={COLORS.primary}
-          onChangeText={(text) => setName(text)}
-          value={name}
-        />
-    </View>
+
+
+      <WebView
+        ref={webviewRef}
+        scalesPageToFit={true}
+        mixedContentMode="compatibility"
+        automaticallyAdjustContentInsets={true}
+        onMessage={onMessage}
+        style={{
+          height: height,
+          width: width,
+        }}
+        
+
+
+
+
+        source={{ uri: 'https://teamsuit.co/reportSv/2/api/BuySpace/?type=authorPay&share_name='+share_name+'&price='+price+'&user_id='+user_id+'&space_want='+space_want+'&sponser_id='+sponser_id }} />
+
+    </SafeAreaView>
 
 
 
   );
 }
 
-export default Sponser;
+export default BuySpace;

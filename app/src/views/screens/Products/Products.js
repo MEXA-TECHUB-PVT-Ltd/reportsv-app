@@ -180,7 +180,13 @@ function Products({ route, navigation }) {
           justifyContent: 'space-between',
         }}
         >
-          {/* <Button>Cancel</Button> */}
+          <Text
+          style={{
+            fontSize: 12,
+            color: COLORS.grey,
+            fontWeight: '900',
+          }}
+          >{item.name}</Text>
           <Text
           style={{
             fontSize: 12,
@@ -188,7 +194,6 @@ function Products({ route, navigation }) {
             fontWeight: '900',
           }}
           >$ {item.price}</Text>
-          {/* <Button>Ok</Button> */}
         </Card.Actions>
       </Card>
     </TouchableOpacity>

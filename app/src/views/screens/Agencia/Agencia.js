@@ -5,19 +5,20 @@ import {
   ScrollView,
   StatusBar,
   StyleSheet,
-  Button,
   Image,
   useColorScheme,
   View,
   Dimensions,
   TouchableOpacity,
   ImageBackground,
+
   FlatList,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  Linking
 } from 'react-native';
 import {
   Text,
-
+  Button,
   Snackbar,
   Headline,
   ActivityIndicator,
@@ -25,16 +26,18 @@ import {
   TouchableRipple,
   Paragraph,
   Appbar,
-  TextInput,
   List,
-  Divider
+  Divider,
+  Title,
+   Card,
+   TextInput,
+   Badge
 } from 'react-native-paper';
 import VideoPlayer from 'react-native-video-player';
 import COLORS from '../../../consts/colors';
 import base_url from '../../../consts/base_url';
 import image_url from '../../../consts/image_url';
 import STYLES from '../../../styles';
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import LoginHeader from '../../../components/logins_comp/LoginHeader';
@@ -51,190 +54,176 @@ import RBSheet from "react-native-raw-bottom-sheet";
 import BrickList from 'react-native-masonry-brick-list';
 import styles from './styles';
 import { WebView } from 'react-native-webview';
-import { StripeProvider, CardField, useConfirmPayment } from '@stripe/stripe-react-native';
-import { IgnorePattern } from 'react-native/Libraries/LogBox/LogBox';
-
+import { color } from 'react-native-reanimated';
+import { useIsFocused } from '@react-navigation/native';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
-function Sponser({ route, navigation }) {
-  // snackbar
+function Agencia({ route, navigation }) {
+  const isFocused = useIsFocused();  
   const [data, setData] = useState([]);
-  const [data2, setData2] = useState([]);
+  const [user_id, setUserId] = useState('');
+  const flatListRef=useRef();
+  // bottom sheet end
+  // snackbar
   const [visible, setVisible] = useState(false);
-  const [active, setActive] = useState('');
+  const [loading, setloading] = useState(false);
   const [snackDetails, setSnackDetails] = useState({
     text: '',
     backgroundColor: '',
   });
+
   const onToggleSnackBar = () => setVisible(!visible);
   const onDismissSnackBar = () => setVisible(false);
-  
-  const renderItem = ({ item }) => (
-    <TouchableOpacity
 
-    onPress={() => navigation.navigate('AgenciaPlayer', { item: item })}
-
-      style={{
-        marginHorizontal: 10,
-        marginVertical: 5,
-        padding: 10,
-        borderRadius: 10,
-        alignItems: 'center',
-        backgroundColor:COLORS.secondary,
-      }}
-    >
-      <>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            width: '90%',
-          alignItems: 'center',
-          }}
-        >
-          <Headline style={{
-            fontSize: 18,
-            color: COLORS.white,
-            fontWeight: 'bold',
-          }}>Player Name</Headline>
-          <Paragraph 
-          >{item.name}</Paragraph>
-        </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            width: '90%',
-          alignItems: 'center',
-          }}
-        >
-          <Headline style={{
-            fontSize: 18,
-            color: COLORS.white,
-            fontWeight: 'bold',
-          }}>Price</Headline>
-          <Paragraph 
-          >{item.price} $</Paragraph>
-        </View>
-
-      </>
-    </TouchableOpacity>
-  )
-  const renderItem2 = ({ item }) => (
-    <TouchableOpacity
-
-    // onPress={() => navigation.navigate('SponsersSpaces', { item: item })}
-
-      style={{
-        marginHorizontal: 10,
-        marginVertical: 5,
-        padding: 10,
-        borderRadius: 10,
-        alignItems: 'center',
-        backgroundColor:COLORS.primary,
-      }}
-    >
-      <>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            width: '90%',
-          alignItems: 'center',
-          }}
-        >
-          <Headline style={{
-            fontSize: 18,
-            color: COLORS.white,
-            fontWeight: 'bold',
-          }}>Job Price</Headline>
-          <Paragraph 
-          >{item.name}</Paragraph>
-        </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            width: '90%',
-          alignItems: 'center',
-          }}
-        >
-          <Headline style={{
-            fontSize: 18,
-            color: COLORS.white,
-            fontWeight: 'bold',
-          }}>Price</Headline>
-          <Paragraph 
-          >{item.price} $</Paragraph>
-        </View>
-
-      </>
-    </TouchableOpacity>
-  )
-  const getAllbyPlayer = async () => {
-    setActive('player')
-    var InsertAPIURL = base_url + '/agencia/getAllbyPlayer.php';
-    var headers = {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    };
-
-    await fetch(InsertAPIURL, {
-      method: 'GET',
-      headers: headers,
-
-    })
-      .then(response => response.json())
-      .then(response => {
-        setData(response);
-      })
-      .catch(error => {
-        alert('this is error' + error);
-      });
-  };
-  const getAllbyJob = async () => {
-    setActive('job')
+  // getAllProducts
+  const getAllOrderofUser = async () => {
+    setloading(true);
     var InsertAPIURL = base_url + '/agencia/getAllbyJobs.php';
     var headers = {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     };
-
     await fetch(InsertAPIURL, {
       method: 'GET',
       headers: headers,
-
+      // body: JSON.stringify({
+      //   user_id: user_id,
+      // }),
     })
       .then(response => response.json())
       .then(response => {
-        console.log(response);
-        setData2(response);
+        setloading(false);
+        // console.log('response', response);
+        if(response==null) {
+          setData([]);
+        }
+        else {
+          setData(response); 
+        }
+
       })
       .catch(error => {
+
         alert('this is error' + error);
       });
+
   };
+  
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+    activeOpacity={0.5}
+    onPress={() => {
+      navigation.navigate('AgenciaDetail', {
+        item: item,
+      });
+    }}
+    >
+    <List.Item
+    title={
+      <View
+      style={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width:width*0.50,
+        // backgroundColor: COLORS.red,
+        // width: width * 0.76,
+        // backgroundColor: COLORS.red,
+      }}
+      >
+      <Text
+      style={{
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: COLORS.dark,
+      }}
+      >
+        {item.job_title}
+      </Text>
+    
+      </View>
+    }
+    description={()=>{
+      return(
+        <View>
+        <Text>Job Type : {item.job_type}</Text>
+        <Text>Salary : {item.salary}</Text>
+      </View>
+      )
+    }}
+   
+    right={(props) =>{
+      return(
+        <TouchableOpacity
+        onPress={() => {
+          if(item.resume=='' || item.resume==null) {
+            alert('No File found');
+          }
+        else {
+          Linking.openURL(image_url+item.resume);
+        }
+        }}
+        >
+<List.Icon 
+style={{
+  padding: 10,
+  backgroundColor: COLORS.primary,
+}}
+{...props} icon="download" />
+          </TouchableOpacity>
+      )
+    } }
+  />
+  <Divider 
+  style={{
+    backgroundColor: COLORS.greylight,
+    height:1
+  }}
+  />
+  </TouchableOpacity>
+  );
+  // get user data from async storage
+  const getData = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem('userDetail')
+      const data = JSON.parse(jsonValue)
+      setUserId(data.id)
+      
+
+    } catch (e) {
+      alert('Failed to fetch the data from storage')
+    }
+  }
   useEffect(() => {
-    getAllbyPlayer();
-  }, []);
+
+   
+    getAllOrderofUser()
+    getData()
+    return () => {
+      setData({}); // This worked for me
+      
+    };
+  }, [isFocused]);
   return (
 
 
-    <View
-    style={{
-      flex: 1,
-      backgroundColor: COLORS.dark
-    }}
+    <SafeAreaView
+      style={{
+        backgroundColor: COLORS.white,
+        flex: 1,
+      }}
     >
+      {/* react narive floating button */}
+      
       <Snackbar
         visible={visible}
         style={{
           zIndex: 999,
           backgroundColor: snackDetails.backgroundColor,
+          marginBottom: '15%',
         }}
 
-        duration={2000}
+        duration={1000}
         onDismiss={onDismissSnackBar}
       >
         {snackDetails.text}
@@ -245,43 +234,70 @@ function Sponser({ route, navigation }) {
         }}
       >
         <Appbar.BackAction onPress={() => {
-          navigation.goBack()
+          navigation.goBack();
         }}
         />
-        <Appbar.Content title="Agencia" />
-        <Appbar.Content 
-        onPress={() => {
-          if(active=='player'){
-            getAllbyJob ()
-          }
-          else {
-            getAllbyPlayer()
-          }
-        }}
-        title={active=='player' ? 'See Jobs' : 'See Players'} />
-        {/* <Appbar.Action icon="plus" onPress={() => { }} /> */}
+        <Appbar.Content title="Agencia"/>
+        <Appbar.Action icon="file-check" onPress={() => { 
+          navigation.navigate('MyAppliedJob', {
+            user_id: user_id,
+          });
+        }} />
+        <Appbar.Action icon="format-list-bulleted" onPress={() => { 
+          navigation.navigate('MyPostedJobs', {
+            user_id: user_id,
+          });
+        }} />
+        <Appbar.Action icon="plus" onPress={() => { 
+          navigation.navigate('AddNewJob', {
+            user_id: user_id,
+          });
+        }} />
+       
       </Appbar.Header>
-      {active=='player' ? 
-      <FlatList
-      data={data}
-      renderItem={renderItem}
-      keyExtractor={item => item.id}
-    />
-      :
-      <FlatList
-        data={data2}
-        renderItem={renderItem2}
-        keyExtractor={item => item.id}
-      />
+      {
+        loading ? (
+          <ActivityIndicator animating={loading}
+            color={COLORS.primary}
+            style={{ position: 'absolute', top: height / 2, left: width / 2, zIndex: 9999 }} />
+        ) : <FlatList
+        ref={flatListRef}
+          data={data}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          
+          style={{ 
+             flex: 1 ,
+            marginHorizontal: 5,
+          }}
+         
+          ListEmptyComponent={()=>{
+             return (<View
+             style={{
+              alignContent:'center',
+              justifyContent:'center',
+              alignItems:'center',
+              alignSelf:'center',
+              width:width,
+              height:height/1.2
+            }}
+             >
+              <Text
+              style={{
+                alignSelf:'center'
+              }}
+              >No Order Yet</Text>
+          </View>)
+          }}
+          />
       }
-      
-      
-
-    </View>
+     
+      </SafeAreaView>
 
 
 
   );
 }
 
-export default Sponser;
+export default Agencia;
+

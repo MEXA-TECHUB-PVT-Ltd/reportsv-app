@@ -58,13 +58,20 @@ import BeTheOwnerDetail from './app/src/views/screens/BeTheOwnerDetail/BeTheOwne
 import Sponser from './app/src/views/screens/Sponser/Sponser';
 import SponsersSpaces from './app/src/views/screens/SponsersSpaces/SponsersSpaces';
 import Agencia from './app/src/views/screens/Agencia/Agencia';
-import AgenciaPlayer from './app/src/views/screens/AgenciaPlayer/AgenciaPlayer';
+import AgenciaDetail from './app/src/views/screens/AgenciaDetail/AgenciaDetail';
 import Products from './app/src/views/screens/Products/Products';
 import ProductDetail from './app/src/views/screens/ProductDetail/ProductDetail';
 import Cart from './app/src/views/screens/Cart/Cart';
 import MakePaymentOrder from './app/src/views/screens/MakePaymentOrder/MakePaymentOrder';
 import OrderHistory from './app/src/views/screens/OrderHistory/OrderHistory';
 import CartList from './app/src/views/screens/CartList/CartList';
+import PaytoAuthor from './app/src/views/screens/PaytoAuthor/PaytoAuthor';
+import BuySpace from './app/src/views/screens/BuySpace/BuySpace';
+import MySpacesBuyed from './app/src/views/screens/MySpacesBuyed/MySpacesBuyed';
+import MyAppliedJob from './app/src/views/screens/MyAppliedJob/MyAppliedJob';
+import AddNewJob from './app/src/views/screens/AddNewJob/AddNewJob';
+import MyPostedJobs from './app/src/views/screens/MyPostedJobs/MyPostedJobs';
+import MyApplicants from './app/src/views/screens/MyApplicants/MyApplicants';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -248,13 +255,20 @@ const App = () => {
         <Stack.Screen name="Sponser" component={Sponser} />
         <Stack.Screen name="SponsersSpaces" component={SponsersSpaces} />
         <Stack.Screen name="Agencia" component={Agencia} />
-        <Stack.Screen name="AgenciaPlayer" component={AgenciaPlayer} />
+        <Stack.Screen name="AgenciaDetail" component={AgenciaDetail} />
         <Stack.Screen name="Products" component={Products} />
         <Stack.Screen name="ProductDetail" component={ProductDetail} />
         <Stack.Screen name="Cart" component={Cart} />
         <Stack.Screen name="MakePaymentOrder" component={MakePaymentOrder} />
         <Stack.Screen name="OrderHistory" component={OrderHistory} />
         <Stack.Screen name="CartList" component={CartList} />
+        <Stack.Screen name="PaytoAuthor" component={PaytoAuthor} />
+        <Stack.Screen name="BuySpace" component={BuySpace} />
+        <Stack.Screen name="MySpacesBuyed" component={MySpacesBuyed} />
+        <Stack.Screen name="MyAppliedJob" component={MyAppliedJob} />
+        <Stack.Screen name="AddNewJob" component={AddNewJob} />
+        <Stack.Screen name="MyPostedJobs" component={MyPostedJobs} />
+        <Stack.Screen name="MyApplicants" component={MyApplicants} />
 
       </Stack.Navigator>
     </NavigationContainer>

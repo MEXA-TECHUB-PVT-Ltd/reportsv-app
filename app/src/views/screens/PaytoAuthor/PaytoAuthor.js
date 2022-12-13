@@ -52,18 +52,20 @@ import { WebView } from 'react-native-webview';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
-function LiveStream({ route, navigation }) {
-  const scrollRef = useRef();
+function PaytoAuthor({ route, navigation }) {
   const webviewRef = useRef();
 
   const refRBSheetTags = useRef();
-  const {news_id, userid,title,navigation_to } = route.params;
-  console.log('title', title);
-  const [user_id, setUser_id] = useState('');
+  const { 
+        author_id,
+        ratePerNews,
+        user_id,
+        author_name,
+   } = route.params;
+console.log('author_name',author_name)
   const [cat_id, setCat_id] = useState('');
   const [categoryFollowed, setCategoryFollowed] = useState('');
   const [authorFollowed, setAuthorFollowed] = useState('');
-  const [author_id, setAuthor_id] = useState('');
   const [comment, setComment] = useState('');
   const [saved, setSaved] = useState(0);
   const [liked, setLiked] = useState(0);
@@ -342,9 +344,8 @@ function LiveStream({ route, navigation }) {
   }
   useEffect(() => {
 
-    getData()
-    sendDataToWebView()
-    console.log(news_id)
+    // getData()
+    // sendDataToWebView()
   }, []);
   return (
 
@@ -375,16 +376,10 @@ function LiveStream({ route, navigation }) {
         }}
       >
         <Appbar.BackAction onPress={() => {
-          
-          if(navigation_to=='Feed') {
-            navigation.navigate('Feed')
-          }
-          else{
             navigation.goBack()
-          }
         }}
         />
-        <Appbar.Content title="News Details"
+        <Appbar.Content title="Subscribe to Author"
         // subtitle="News Details"
         />
 
@@ -402,162 +397,8 @@ function LiveStream({ route, navigation }) {
           height: height,
           width: width,
         }}
-        source={{ uri: 'http://143.198.124.115/apps/viewaNews.php?news_id=' + news_id + '&user_id=' + userid }} />
+        source={{ uri: 'https://teamsuit.co/reportSv/2/api/make_payment/?type=authorPay&authorName='+author_name+'&price='+ratePerNews+'&user_id='+user_id+'&author_id='+author_id }} />
 
-
-
-
-      <Appbar.Header
-        style={{
-          backgroundColor: COLORS.dark,
-
-        }}
-      >
-
-        <Appbar.Content
-          onPress={() => {
-            console.log('pressed')
-            navigation.navigate('CommentList', {
-              news_id: news_id,
-              title: title,
-            })
-          }}
-          title="All Comment"
-
-          titleStyle={{
-            fontSize: 10,
-            color: COLORS.white,
-            backgroundColor: COLORS.secondary,
-            alignSelf: 'center',
-            padding: 7,
-            borderRadius: 15,
-            alignSelf: 'flex-start',
-          }}
-        />
-        <Appbar.Action icon="comment" color={COLORS.light} onPress={() => {
-          refRBSheet.current.open()
-        }} />
-        <Appbar.Action icon="playlist-plus" color={
-          categoryFollowed? COLORS.secondary : COLORS.light
-        }
-        onPress={() => {
-          followaCategory()
-        }} />
-        {/* <Appbar.Action icon="playlist-plus" color={
-          authorFollowed? COLORS.secondary : COLORS.light
-        } onPress={() => {
-          followanAuthor()
-        }} /> */}
-        
-        <Appbar.Action icon="thumb-up" color={
-          liked ? COLORS.secondary : COLORS.light
-        } onPress={() => {
-          likeaNews()
-        }} />
-
-        <Appbar.Action icon="bookmark"
-          color={
-            saved ? COLORS.secondary : COLORS.light
-          } onPress={() => {
-            saveaNews()
-          }}
-        />
-
-      </Appbar.Header>
-
-
-      <RBSheet
-        ref={refRBSheet}
-        closeOnDragDown={true}
-        closeOnPressMask={true}
-        customStyles={{
-          wrapper: {
-            backgroundColor: "rgba(0,0,0,.9)"
-          },
-          draggableIcon: {
-            backgroundColor: "rgba(0,0,0,0)"
-          },
-          container: {
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
-            backgroundColor: COLORS.dark,
-            height: height / 2.5,
-            borderWidth: 1,
-
-          }
-
-        }}
-
-      >
-        <View
-          style={{
-
-            marginHorizontal: '4%',
-
-
-          }}
-        >
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              paddingHorizontal: '6%',
-
-            }}
-          >
-            <Text
-              adjustsFontSizeToFit={true}
-              style={[styles.bkgImgText, {
-                marginVertical: '2%',
-              }]}
-            >Add a Comment</Text>
-            <TouchableOpacity
-              onPress={() => {
-                refRBSheet.current.close()
-              }}
-            >
-              <Icon name="times-circle" size={20}
-                color={COLORS.white}
-                style={{
-
-                }}
-              />
-            </TouchableOpacity>
-
-          </View>
-          <TextInput
-            style={styles.txtInpt}
-            color={'white'}
-            placeholder="Add comment here"
-            placeholderTextColor={COLORS.white}
-            multiline={true}
-            numberOfLines={4}
-            underlineColor='white'
-            activeUnderlineColor='white'
-            mode="Flat"
-            maxHeight={100}
-            onChangeText={text => setComment(text)}
-          />
-          <Button
-            mode='contained'
-            style={styles.btn}
-            contentStyle={styles.btnContent}
-            onPress={() => {
-              addComment()
-            }}
-          >
-            <Text
-              style={styles.btnText}
-            >ADD COMMENT
-            </Text>
-          </Button>
-
-
-
-        </View>
-
-
-      </RBSheet>
     </SafeAreaView>
 
 
@@ -565,4 +406,4 @@ function LiveStream({ route, navigation }) {
   );
 }
 
-export default LiveStream;
+export default PaytoAuthor;

@@ -416,18 +416,8 @@ const [fab, setFab] = useState({ open: false });
               width: '50%',
               marginRight: 10,
             }}
-          >Report Sv</Text>
-          {/* <TouchableOpacity
-            style={[styles.liveBtn, {
-              alignSelf: 'center'
-            }]}
-            onPress={() => {
-              navigation.navigate('LiveStream')
-            }}
-          >
-            <Icon name="tv" size={20}
-              color={COLORS.white} />
-          </TouchableOpacity> */}
+          >Reporte Sv</Text>
+          
           <TouchableOpacity
             style={[styles.liveBtn, {
               alignSelf: 'center'
@@ -437,10 +427,10 @@ const [fab, setFab] = useState({ open: false });
             }}
           >
             <Icon name="tshirt" size={20}
-              color={COLORS.white} />
+              color={COLORS.secondary} />
               <Text 
               style={{
-                color:COLORS.white,
+                color:COLORS.secondary,
                 fontSize:10,
                 fontWeight:'bold',
 

@@ -196,7 +196,7 @@ function Signup({ navigation }) {
           <LoginHeader navigation={navigation}
             bkgImgType={'signup'}
             bkgImgText={'REGISTER TO CONTINUE'}
-          />,
+          />
 
           <View style={styles.txtInptView}>
             <TextInput
@@ -259,7 +259,6 @@ function Signup({ navigation }) {
               </Text>
             </Button>
 
-            {/* <FBBtn text="Register" /> */}
 
             <Text
               style={styles.orView}

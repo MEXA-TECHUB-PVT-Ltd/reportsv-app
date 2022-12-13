@@ -13,7 +13,8 @@ import {
   ImageBackground,
 
   FlatList,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  Linking
 } from 'react-native';
 import {
   Text,
@@ -54,23 +55,15 @@ import BrickList from 'react-native-masonry-brick-list';
 import styles from './styles';
 import { WebView } from 'react-native-webview';
 import { color } from 'react-native-reanimated';
-
+import { useIsFocused } from '@react-navigation/native';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
-function OrderHistory({ route, navigation }) {
-  const {user_id}=route.params;
-  const refRBSheetTags = useRef();
-  const [email, setEmail] = useState('');
-  const [total, setTotal] = useState('');
-  const [name, setName] = useState('');
-  const [shipping_address, setShipping_address] = useState('');
+function MyApplicants({ route, navigation }) {
+  const isFocused = useIsFocused();  
   const [data, setData] = useState([]);
-  
-  const [saved, setSaved] = useState(0);
-  const [liked, setLiked] = useState(0);
-  // bottom sheet 
-  const refRBSheet = useRef();
+  const {item,user_id}= route.params;
+  console.log('item', item.id);
   const flatListRef=useRef();
   // bottom sheet end
   // snackbar
@@ -87,7 +80,7 @@ function OrderHistory({ route, navigation }) {
   // getAllProducts
   const getAllOrderofUser = async () => {
     setloading(true);
-    var InsertAPIURL = base_url + '/products/getAllOrderofUser.php';
+    var InsertAPIURL = base_url + '/agencia/getApplicantsByJobId.php';
     var headers = {
       Accept: 'application/json',
       'Content-Type': 'application/json',
@@ -96,23 +89,57 @@ function OrderHistory({ route, navigation }) {
       method: 'POST',
       headers: headers,
       body: JSON.stringify({
-        user_id: user_id,
+        agencia_id: item.id,
       }),
     })
       .then(response => response.json())
       .then(response => {
         setloading(false);
-        // console.log('response', response);
-        
+        console.log('response', response);
         if(response==null) {
           setData([]);
         }
         else {
-          
-          setData(response);
-          
+          setData(response); 
         }
+      })
+      .catch(error => {
 
+        alert('this is error' + error);
+      });
+
+  };
+  const deleteJob = async (id) => {
+    setloading(true);
+    var InsertAPIURL = base_url + '/agencia/deleteJob.php';
+    var headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    };
+    await fetch(InsertAPIURL, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({
+        id: id,
+      }),
+    })
+      .then(response => response.json())
+      .then(response => {
+        setloading(false);
+        if(response[0].error==false) {
+          setSnackDetails({
+            text: 'Job Deleted Successfully',
+            backgroundColor: COLORS.success,
+          });
+          onToggleSnackBar();
+          getAllOrderofUser()
+        } else {
+          setSnackDetails({
+            text: 'Error in Deleting Job',
+            backgroundColor: COLORS.green,
+          });
+        }
+        
       })
       .catch(error => {
 
@@ -121,25 +148,13 @@ function OrderHistory({ route, navigation }) {
 
   };
   
-  
-  
-
-  
-
   const renderItem = ({ item }) => (
     <TouchableOpacity
+    activeOpacity={0.5}
     onPress={() => {
-      if(item.order_status=='payment_confirmed') {
-        navigation.navigate('CartList', {
-          uniq_id:item.uniq_id,
-          order_status:item.order_status,
-        });
-      } else {
-        navigation.navigate('Cart', {
-          uniq_id:item.uniq_id,
-        });
-      }
-      
+      navigation.navigate('AgenciaDetail', {
+        item: item,
+      });
     }}
     >
     <List.Item
@@ -148,6 +163,7 @@ function OrderHistory({ route, navigation }) {
       style={{
         flexDirection: 'row',
         justifyContent: 'space-between',
+        width:width*0.70,
         // width: width * 0.76,
         // backgroundColor: COLORS.red,
       }}
@@ -156,36 +172,45 @@ function OrderHistory({ route, navigation }) {
       style={{
         fontSize: 16,
         fontWeight: 'bold',
-        color: COLORS.dark,
+        color: COLORS.primary,
       }}
       >
-        Order # {item.uniq_id}
+        User : {item.name}
       </Text>
+     
     
       </View>
     }
-    description={'Total Price : $'+item.total_price}
-    
-    right={props => <Badge
-    style={{
-      marginBottom:'5%'
+    description={()=>{
+      return(
+        <View>
+        <Text>Contact : {item.contact}</Text>
+        <Text>Applied at : {item.comment}</Text>
+        <Text>Comments : {item.comment}</Text>
+      </View>
+      )
     }}
-    >{item.order_status}</Badge>}
-    
+   
   />
-  <Divider />
+  <Divider 
+  style={{
+    backgroundColor: COLORS.greylight,
+    height:1
+  }}
+  />
   </TouchableOpacity>
   );
-
+  
   useEffect(() => {
 
    
     getAllOrderofUser()
+    // getData()
     return () => {
       setData({}); // This worked for me
       
     };
-  }, []);
+  }, [isFocused]);
   return (
 
 
@@ -216,10 +241,14 @@ function OrderHistory({ route, navigation }) {
         }}
       >
         <Appbar.BackAction onPress={() => {
-          navigation.navigate('Products')
+          navigation.goBack();
         }}
         />
-        <Appbar.Content title="My Orders"/>
+        <Appbar.Content title={item.job_title}
+        subtitle={item.job_type}
+
+        />
+        
        
       </Appbar.Header>
       {
@@ -253,12 +282,11 @@ function OrderHistory({ route, navigation }) {
               style={{
                 alignSelf:'center'
               }}
-              >No Order Yet</Text>
+              >No Applications Yet</Text>
           </View>)
           }}
           />
       }
-     
       </SafeAreaView>
 
 
@@ -266,5 +294,5 @@ function OrderHistory({ route, navigation }) {
   );
 }
 
-export default OrderHistory;
+export default MyApplicants;
 

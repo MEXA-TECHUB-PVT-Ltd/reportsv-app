@@ -58,7 +58,7 @@ import { color } from 'react-native-reanimated';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
-function OrderHistory({ route, navigation }) {
+function MySpacesBuyed({ route, navigation }) {
   const {user_id}=route.params;
   const refRBSheetTags = useRef();
   const [email, setEmail] = useState('');
@@ -87,7 +87,7 @@ function OrderHistory({ route, navigation }) {
   // getAllProducts
   const getAllOrderofUser = async () => {
     setloading(true);
-    var InsertAPIURL = base_url + '/products/getAllOrderofUser.php';
+    var InsertAPIURL = base_url + '/sponser/getPreviousByUid.php';
     var headers = {
       Accept: 'application/json',
       'Content-Type': 'application/json',
@@ -128,19 +128,7 @@ function OrderHistory({ route, navigation }) {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
-    onPress={() => {
-      if(item.order_status=='payment_confirmed') {
-        navigation.navigate('CartList', {
-          uniq_id:item.uniq_id,
-          order_status:item.order_status,
-        });
-      } else {
-        navigation.navigate('Cart', {
-          uniq_id:item.uniq_id,
-        });
-      }
-      
-    }}
+    activeOpacity={0.8}
     >
     <List.Item
     title={
@@ -148,6 +136,8 @@ function OrderHistory({ route, navigation }) {
       style={{
         flexDirection: 'row',
         justifyContent: 'space-between',
+        width:width*0.85,
+        // backgroundColor: COLORS.red,
         // width: width * 0.76,
         // backgroundColor: COLORS.red,
       }}
@@ -159,19 +149,20 @@ function OrderHistory({ route, navigation }) {
         color: COLORS.dark,
       }}
       >
-        Order # {item.uniq_id}
+        {item.sponser_name}
+      </Text>
+      <Text
+      style={{
+        color: COLORS.light,
+      }}
+      >
+       TID # {item.payment_id}
       </Text>
     
       </View>
     }
-    description={'Total Price : $'+item.total_price}
-    
-    right={props => <Badge
-    style={{
-      marginBottom:'5%'
-    }}
-    >{item.order_status}</Badge>}
-    
+    description={'Spaces Buyed : '+item.space_buyed+' / '+item.total_space}
+   
   />
   <Divider />
   </TouchableOpacity>
@@ -216,7 +207,7 @@ function OrderHistory({ route, navigation }) {
         }}
       >
         <Appbar.BackAction onPress={() => {
-          navigation.navigate('Products')
+          navigation.goBack();
         }}
         />
         <Appbar.Content title="My Orders"/>
@@ -266,5 +257,5 @@ function OrderHistory({ route, navigation }) {
   );
 }
 
-export default OrderHistory;
+export default MySpacesBuyed;
 

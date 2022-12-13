@@ -13,7 +13,8 @@ import {
   ImageBackground,
 
   FlatList,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  Linking
 } from 'react-native';
 import {
   Text,
@@ -58,20 +59,11 @@ import { color } from 'react-native-reanimated';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
-function OrderHistory({ route, navigation }) {
-  const {user_id}=route.params;
-  const refRBSheetTags = useRef();
-  const [email, setEmail] = useState('');
-  const [total, setTotal] = useState('');
-  const [name, setName] = useState('');
-  const [shipping_address, setShipping_address] = useState('');
+function MyAppliedJob({ route, navigation }) {
+  const {  user_id} = route.params;
+
   const [data, setData] = useState([]);
-  
-  const [saved, setSaved] = useState(0);
-  const [liked, setLiked] = useState(0);
-  // bottom sheet 
-  const refRBSheet = useRef();
-  const flatListRef=useRef();
+ const flatListRef=useRef();
   // bottom sheet end
   // snackbar
   const [visible, setVisible] = useState(false);
@@ -87,7 +79,7 @@ function OrderHistory({ route, navigation }) {
   // getAllProducts
   const getAllOrderofUser = async () => {
     setloading(true);
-    var InsertAPIURL = base_url + '/products/getAllOrderofUser.php';
+    var InsertAPIURL = base_url + '/agencia/getJobAppliedByUserId.php';
     var headers = {
       Accept: 'application/json',
       'Content-Type': 'application/json',
@@ -103,14 +95,11 @@ function OrderHistory({ route, navigation }) {
       .then(response => {
         setloading(false);
         // console.log('response', response);
-        
         if(response==null) {
           setData([]);
         }
         else {
-          
-          setData(response);
-          
+          setData(response); 
         }
 
       })
@@ -120,26 +109,56 @@ function OrderHistory({ route, navigation }) {
       });
 
   };
-  
-  
-  
+  const deleteApplication = async (id) => {
+    setloading(true);
+    var InsertAPIURL = base_url + '/agencia/deleteApplication.php';
+    var headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    };
+    await fetch(InsertAPIURL, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({
+        id: id,
+      }),
+    })
+      .then(response => response.json())
+      .then(response => {
+        setloading(false);
+        console.log('response', response);
+        if(response[0].error==true) {
+          setSnackDetails({
+            text: response[0].message,
+            backgroundColor: COLORS.red,
+          });
+          onToggleSnackBar();
+        } else {
+          setSnackDetails({
+            text: response[0].message,
+            backgroundColor: COLORS.success,
+          });
+          onToggleSnackBar();
+        
+            getAllOrderofUser();
+          
+        }
+        
+      })
+      .catch(error => {
 
-  
+        alert('this is error' + error);
+      });
 
+  };
+  
   const renderItem = ({ item }) => (
     <TouchableOpacity
+    activeOpacity={0.5}
     onPress={() => {
-      if(item.order_status=='payment_confirmed') {
-        navigation.navigate('CartList', {
-          uniq_id:item.uniq_id,
-          order_status:item.order_status,
-        });
-      } else {
-        navigation.navigate('Cart', {
-          uniq_id:item.uniq_id,
-        });
-      }
-      
+      navigation.navigate('AgenciaDetail', {
+        item: item,
+      });
     }}
     >
     <List.Item
@@ -148,8 +167,7 @@ function OrderHistory({ route, navigation }) {
       style={{
         flexDirection: 'row',
         justifyContent: 'space-between',
-        // width: width * 0.76,
-        // backgroundColor: COLORS.red,
+        width:width*0.70,
       }}
       >
       <Text
@@ -159,28 +177,63 @@ function OrderHistory({ route, navigation }) {
         color: COLORS.dark,
       }}
       >
-        Order # {item.uniq_id}
+        {item.job_title}
       </Text>
+      <Badge
+      style={{
+        backgroundColor: COLORS.primary,
+        color: COLORS.white,
+        
+      }}
+      >
+        {item.applied_at}
+      </Badge>
     
       </View>
     }
-    description={'Total Price : $'+item.total_price}
-    
-    right={props => <Badge
-    style={{
-      marginBottom:'5%'
+    description={()=>{
+      return(
+        <View>
+        <Text>Job Type : {item.job_type}</Text>
+        <Text>Salary : {item.salary}</Text>
+      </View>
+      )
     }}
-    >{item.order_status}</Badge>}
-    
+   
+    right={(props) =>{
+      return(
+        <TouchableOpacity
+        onPress={() => {
+          // delete application
+          deleteApplication(item.application_id)
+        }}
+        >
+<List.Icon 
+style={{
+  padding: 10,
+  backgroundColor: COLORS.primary,
+}}
+{...props} icon="delete"
+color={COLORS.red}
+/>
+          </TouchableOpacity>
+      )
+    } }
   />
-  <Divider />
+  <Divider 
+  style={{
+    backgroundColor: COLORS.greylight,
+    height:1
+  }}
+  />
   </TouchableOpacity>
   );
-
+  
   useEffect(() => {
 
    
     getAllOrderofUser()
+    // getData()
     return () => {
       setData({}); // This worked for me
       
@@ -216,10 +269,11 @@ function OrderHistory({ route, navigation }) {
         }}
       >
         <Appbar.BackAction onPress={() => {
-          navigation.navigate('Products')
+          navigation.goBack();
         }}
         />
-        <Appbar.Content title="My Orders"/>
+        <Appbar.Content title="My Applied Job"/>
+        
        
       </Appbar.Header>
       {
@@ -253,7 +307,7 @@ function OrderHistory({ route, navigation }) {
               style={{
                 alignSelf:'center'
               }}
-              >No Order Yet</Text>
+              >You have not Applied to any Job Yet</Text>
           </View>)
           }}
           />
@@ -266,5 +320,5 @@ function OrderHistory({ route, navigation }) {
   );
 }
 
-export default OrderHistory;
+export default MyAppliedJob;
 

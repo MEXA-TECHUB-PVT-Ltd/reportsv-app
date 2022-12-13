@@ -411,7 +411,8 @@ function Discover({ navigation }) {
                           navigation.navigate('FeedByAuthor', {
                             author_id: item.id,
                           }) : 
-                          navigation.navigate('MakePayAuthor', {
+                          // navigation.navigate('MakePayAuthor', {
+                          navigation.navigate('PaytoAuthor', {
                             author_id: item.id,
                             ratePerNews: item.ratePerNews,
                             user_id: user_id,
@@ -425,7 +426,7 @@ function Discover({ navigation }) {
                         <Text style={[styles.renderViewFollowTagTxt,{
                           color:COLORS.light,
                         }]}>
-                          Rate Per News : Rs.{item.ratePerNews} </Text>
+                          Rate Per News : $ {item.ratePerNews} </Text>
                       </TouchableOpacity>
                           {
                             item.subscribed== true ? 
@@ -436,11 +437,11 @@ function Discover({ navigation }) {
                             <TouchableOpacity
                         onPress={
                           // () => unfollowanAuthor(item.item_id)
-                          () => navigation.navigate('MakePayAuthor', {
+                          () => navigation.navigate('PaytoAuthor', {
                             author_id: item.id,
                             ratePerNews: item.ratePerNews,
                             user_id: user_id,
-                            email: item.email,
+                            author_name: item.name,
                           })
                         }
                       >

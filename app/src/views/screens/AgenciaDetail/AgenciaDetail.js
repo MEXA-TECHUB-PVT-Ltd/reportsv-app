@@ -12,7 +12,8 @@ import {
   TouchableOpacity,
   ImageBackground,
   FlatList,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  Linking,
 } from 'react-native';
 import {
   Text,
@@ -43,19 +44,15 @@ import { black } from 'react-native-paper/lib/typescript/styles/colors';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
-function SponsersSpaces({ route, navigation }) {
-  const { item, uniq_id } = route.params;
+function AgenciaDetail({ route, navigation }) {
+  const { item } = route.params;
+  console.log(item);
   const [user_id, setUser_id] = useState('');
   const [exsist, setExsist] = useState(false);
-  const [btnText, setBtnText] = useState('Loading...');
-  const [quantity, setQuantity] = useState('');
-  const [colors, setColors] = useState(item.colors);
-  // sizes
-  const [s, setS] = useState(0);
-  const [m, setM] = useState(0);
-  const [l, setL] = useState(0);
-  const [xl, setXl] = useState(0);
-  const [xxl, setXxl] = useState(0);
+  const [name, setName] = useState('');
+  const [contact, setContact] = useState('');
+  const [comment, setComment] = useState('');
+
   // snackbar
   const [visible, setVisible] = useState(false);
   const [loading, setloading] = useState(false);
@@ -83,54 +80,20 @@ function SponsersSpaces({ route, navigation }) {
   const closeMenu2 = () => setMenuVisible2(false);
 
   // getAllProducts
-  const addToCart = async () => {
-    
-    if (activeText == '' || activeText == 0) {
-      hideDialog()
-      setSnackDetails({
-        text: 'Please Select Size of a Product',
-        backgroundColor: 'red',
-      });
-      onToggleSnackBar();
-      return;
-    }
-    if (activeColor == '' || activeColor == 0) {
-     
-      setSnackDetails({
-        text: 'Please Select Color of a Product',
-        backgroundColor: 'red',
-      });
-      hideDialog()
-      onToggleSnackBar();
-      return;
-    }
-    if (quantity == '' || quantity == 0) {
-      setSnackDetails({
-        text: 'Please enter quantity',
-        backgroundColor: 'red',
-      });
-      onToggleSnackBar();
-      return;
-    }
-    else {
-      setBtnText('Adding in cart...');
-      hideDialog();
+  const sendApplication = async () => {
       setloading(true);
-      console.log(activeText,activeColor)
-      var InsertAPIURL = base_url + '/products/addtoCart.php';
+      var InsertAPIURL = base_url + '/agencia/applyToJob.php';
       var headers = {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       };
       var data =JSON.stringify({
-        uniq_id:uniq_id,
-        p_id:item.id,
+        agencia_id:item.id,
         user_id:user_id,
-        quantity:quantity,
-        size:activeText,
-        color:activeColor
+        name:name,
+        contact:contact,
+        comment:comment
       })
-      // console.log(data)
       await fetch(InsertAPIURL, {
         method: 'POST',
         headers: headers,
@@ -139,18 +102,26 @@ function SponsersSpaces({ route, navigation }) {
         .then(response => response.json())
         .then(response => {
           setloading(false);
-          setSnackDetails({
-            text: response[0].message,
-            backgroundColor: '#05AA6D',
-          });
-          onToggleSnackBar();
-          setExsist(true);
-          console.log(response);
+          if(response[0].error==true){
+            setSnackDetails({
+              text: response[0].message,
+              backgroundColor: COLORS.red,
+            });
+            onToggleSnackBar();
+            
+          } else {
+            setSnackDetails({
+              text: response[0].message,
+              backgroundColor: '#05AA6D',
+            });
+            onToggleSnackBar();
+          }
+        
         })
         .catch(error => {
           alert('this is error' + error);
         });
-    }
+   
   };
   
   // get user data from async storage
@@ -204,9 +175,9 @@ function SponsersSpaces({ route, navigation }) {
             navigation.goBack()
           }}
           />
-          <Appbar.Content title="Sponser Detail"
-          // subtitle="Purchase your favorite products"
+          <Appbar.Content title="Job Detail"
           />
+          
           
         </Appbar.Header>
 
@@ -229,18 +200,14 @@ function SponsersSpaces({ route, navigation }) {
               zIndex: -9,
             }}
           >
-            <Card.Cover source={{ uri: image_url + item.image }}
-              style={{
-                height: 300,
-              }}
-
-            />
+           
             <Card.Content>
               <View
                 style={{
                   flexDirection: 'row',
                   justifyContent: 'space-between',
-                  paddingTop: 10,
+                  // paddingTop: 10,
+                  alignItems: 'center',
                 }}
               >
                 <Title
@@ -248,14 +215,17 @@ function SponsersSpaces({ route, navigation }) {
                     color: COLORS.primary,
                     textTransform: "capitalize"
                   }}
-                >{item.name}</Title>
-                <Title
-                  style={{
-                    color: COLORS.primary,
-                    textTransform: "capitalize"
-                  }}
-                >$ {item.price_per_space}</Title>
-             
+                >{item.job_title}</Title>
+                 <TouchableOpacity
+        onPress={() => {
+          Linking.openURL(image_url+item.resume);
+        }}
+        >
+<List.Icon 
+style={{
+  // padding: 10,
+}} icon="download" />
+          </TouchableOpacity>
               </View>
           
               <View
@@ -265,8 +235,8 @@ function SponsersSpaces({ route, navigation }) {
                 padding: 10,
               }}
               >
-                <Text>Space Available</Text>
-                <Text>{item.total_space}</Text>
+                <Text>Job Type</Text>
+                <Text>{item.job_type}</Text>
               </View>
               <Divider
               style={{
@@ -281,8 +251,8 @@ function SponsersSpaces({ route, navigation }) {
                 padding: 10,
               }}
               >
-                <Text>Space Sold</Text>
-                <Text>{item.space_sold}</Text>
+                <Text>Salary</Text>
+                <Text>$ {item.salary}</Text>
               </View>
               <Divider
               style={{
@@ -290,24 +260,74 @@ function SponsersSpaces({ route, navigation }) {
                 height: 1,
               }}
               />
+              <Text
+              style={{
+                padding:5,
+                fontWeight: 'bold',
+                fontSize: 16
+
+
+              }}
+              >
+                Description
+              </Text>
               <Paragraph
               style={{
-                padding:10
+                padding:5
               }}
               >{item.description}</Paragraph>
             </Card.Content>
+            <Text
+              style={{
+                padding:5,
+                fontWeight: 'bold',
+                fontSize: 16,
+                marginHorizontal:15,
+                color:COLORS.primary
+
+
+              }}
+              >
+                  Apply to Job
+              </Text>
             <TextInput
-              label="Add no of Spaces to buy"
-              value={quantity}
+              label="Name"
+              value={name}
               activeUnderlineColor={COLORS.primary}
               onChangeText={(text) => {
-                
-                  setQuantity(text)
-                
+                  setName(text)
+              }}
+              // keyboardType="numeric"
+              style={{
+                marginHorizontal: 10,
+                marginVertical:5
+              }}
+            />
+            <TextInput
+              label="Contact No."
+              value={contact}
+              activeUnderlineColor={COLORS.primary}
+              onChangeText={(text) => {
+                  setContact(text)
               }}
               keyboardType="numeric"
               style={{
                 marginHorizontal: 10,
+                marginVertical:5
+              }}
+            />
+            <TextInput
+              label="Comment"
+              value={comment}
+              activeUnderlineColor={COLORS.primary}
+              onChangeText={(text) => {
+                  setComment(text)
+              }}
+              multiline={true}
+              style={{
+                marginHorizontal: 10,
+                marginVertical:5,
+                height:100
               }}
             />
             <Card.Actions
@@ -326,28 +346,16 @@ function SponsersSpaces({ route, navigation }) {
                     disabled={loading}
                     contentStyle={styles.btnContent}
                     onPress={() => {
-                      // postanAd()
-                      // showDialog()
-                      var x = item.total_space-item.space_sold
-                      if(quantity>x ){
+                      if (name == '' || contact == '' || comment == '') {
                         setSnackDetails({
-                          text: 'Share Should be less than '+x,
-                          backgroundColor: 'red',
+                          text: 'Please fill all fields',
+                          backgroundColor: '#FF0000',
                         });
                         onToggleSnackBar();
-                        
+                      } else {
+                        // alert('ok')
+                        sendApplication()
                       }
-                      else {
-                        navigation.navigate('BuySpace',{
-                          sponser_id:item.id,
-                          price:item.price_per_space*quantity,
-                          user_id:user_id,
-                          share_name:item.name,
-                          space_want:quantity,
-                         
-                        })
-                      }
-                      
                     }}
                   >
 
@@ -355,7 +363,7 @@ function SponsersSpaces({ route, navigation }) {
                     <Text
                       style={styles.btnText}
                     >
-                      Buy Space
+                      Apply
                     </Text>
                   </Button>
              
@@ -370,4 +378,4 @@ function SponsersSpaces({ route, navigation }) {
   );
 }
 
-export default SponsersSpaces;
+export default AgenciaDetail;
