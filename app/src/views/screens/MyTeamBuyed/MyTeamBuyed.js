@@ -5,14 +5,13 @@ import {
   ScrollView,
   StatusBar,
   StyleSheet,
-
   Image,
   useColorScheme,
   View,
   Dimensions,
   TouchableOpacity,
   ImageBackground,
-  TextInput,
+
   FlatList,
   TouchableWithoutFeedback
 } from 'react-native';
@@ -29,7 +28,9 @@ import {
   List,
   Divider,
   Title,
-   Card
+   Card,
+   TextInput,
+   Badge
 } from 'react-native-paper';
 import VideoPlayer from 'react-native-video-player';
 import COLORS from '../../../consts/colors';
@@ -53,22 +54,24 @@ import BrickList from 'react-native-masonry-brick-list';
 import styles from './styles';
 import { WebView } from 'react-native-webview';
 import { color } from 'react-native-reanimated';
-// use is focused
-import { useIsFocused } from '@react-navigation/native';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
-function BeTheOwner({ route, navigation }) {
-  const focus=useIsFocused();
+function MySpacesBuyed({ route, navigation }) {
+  const {user_id}=route.params;
   const refRBSheetTags = useRef();
-  const [user_id, setUser_id] = useState('');
+  const [email, setEmail] = useState('');
+  const [total, setTotal] = useState('');
+  const [name, setName] = useState('');
+  const [shipping_address, setShipping_address] = useState('');
   const [data, setData] = useState([]);
-  const [uniq_id, setUniq_id] = useState('');
+  
   const [saved, setSaved] = useState(0);
   const [liked, setLiked] = useState(0);
   // bottom sheet 
   const refRBSheet = useRef();
+  const flatListRef=useRef();
   // bottom sheet end
   // snackbar
   const [visible, setVisible] = useState(false);
@@ -82,25 +85,34 @@ function BeTheOwner({ route, navigation }) {
   const onDismissSnackBar = () => setVisible(false);
 
   // getAllProducts
-  const getAllProducts = async () => {
+  const getAllOrderofUser = async () => {
     setloading(true);
-    var InsertAPIURL = base_url + '/team/getAll.php';
+    var InsertAPIURL = base_url + '/team/getPreviousByUid.php';
     var headers = {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     };
     await fetch(InsertAPIURL, {
-      method: 'GET',
+      method: 'POST',
       headers: headers,
-      // body: JSON.stringify({
-      //   news_id: news_id,
-      //   user_id: user_id,
-      // }),
+      body: JSON.stringify({
+        user_id: user_id,
+      }),
     })
       .then(response => response.json())
       .then(response => {
         setloading(false);
-        setData(response);
+        // console.log('response', response);
+        
+        if(response==null) {
+          setData([]);
+        }
+        else {
+          
+          setData(response);
+          
+        }
+
       })
       .catch(error => {
 
@@ -109,104 +121,81 @@ function BeTheOwner({ route, navigation }) {
 
   };
   
+  
+  
 
-  // get user data from async storage
-  const getData = async () => {
-    try {
-      const jsonValue = await AsyncStorage.getItem('userDetail')
-      const data = JSON.parse(jsonValue)
-      setUser_id(data.id)
-      
-
-    } catch (e) {
-      alert('Failed to fetch the data from storage')
-    }
-  }
-
+  
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
-    style={{
-      width: width / 2 - 10,
-      marginHorizontal: 5,
-      marginVertical: 5,
-    }}
     activeOpacity={0.8}
-    onPress={() => navigation.navigate('BeTheOwnerDetail', { item: item})}
     >
-      <Card
+    <List.Item
+    title={
+      <View
       style={{
-        borderRadius: 5,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: COLORS.greylight,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width:width*0.85,
+        // backgroundColor: COLORS.red,
+        // width: width * 0.76,
+        // backgroundColor: COLORS.red,
       }}
       >
-        {/* <Card.Title title="Card Title" subtitle="Card Subtitle" /> */}
-        {/* <Card.Content>
-          <Title>Card title</Title>
-          <Paragraph>Card content</Paragraph>
-        </Card.Content> */}
-        <Card.Cover source={{ uri: image_url + item.image }} 
+      <Text
+      style={{
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: COLORS.dark,
+      }}
+      >
+        {item.share_name}
+      </Text>
+      <Text
+      style={{
+        color: COLORS.light,
+      }}
+      >
+       TID # {item.payment_id}
+      </Text>
+    
+      </View>
+    }
+    description={
+      <View
+      style={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width:width*0.85,
+      }}
+      >
+        <Text
         style={{
-          height: 100,
+          color:COLORS.light
         }}
-        
-        />
-        <Card.Actions
+        >{'Share Price : '+item.share_price}</Text>
+        <Text
         style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
+          color:COLORS.light
         }}
-        >
-          <Text
-          style={{
-            fontSize: 12,
-            color: COLORS.grey,
-            fontWeight: '900',
-          }}
-          >{item.team_name}</Text>
-        </Card.Actions>
-        <Card.Actions
-        
-        >
-          <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            // backgroundColor: COLORS.greylight,
-            width: '100%',
-          }}
-          >
-          <Text
-          style={{
-            fontSize: 12,
-            color: COLORS.grey,
-            fontWeight: '900',
-          }}
-          >Total Share</Text>
-          <Text
-          style={{
-            fontSize: 12,
-            color: COLORS.grey,
-            fontWeight: '900',
-          }}
-          >{item.total_share}</Text>
-          </View>
-        
-        </Card.Actions>
-      </Card>
-    </TouchableOpacity>
+        >{'Date Buyed : '+item.date}</Text>
+      </View>
+    }
+   
+  />
+  <Divider />
+  </TouchableOpacity>
   );
 
   useEffect(() => {
 
-    getData()
-    getAllProducts()
-    return () => { 
-          setData([])
-        }
-  }, [focus]);
+   
+    getAllOrderofUser()
+    return () => {
+      setData({}); // This worked for me
+      
+    };
+  }, []);
   return (
 
 
@@ -216,6 +205,8 @@ function BeTheOwner({ route, navigation }) {
         flex: 1,
       }}
     >
+      {/* react narive floating button */}
+      
       <Snackbar
         visible={visible}
         style={{
@@ -235,40 +226,49 @@ function BeTheOwner({ route, navigation }) {
         }}
       >
         <Appbar.BackAction onPress={() => {
-          navigation.goBack()
+          navigation.goBack();
         }}
         />
-        <Appbar.Content title="Be the Owner"
-          subtitle="Sponser the best Team"
-        />
-        
-        <Appbar.Action icon="history" onPress={() => {
-          navigation.navigate('MyTeamBuyed',{
-            user_id: user_id,
-          })
-        }} />
+        <Appbar.Content title="My Orders"/>
+       
       </Appbar.Header>
       {
         loading ? (
           <ActivityIndicator animating={loading}
             color={COLORS.primary}
             style={{ position: 'absolute', top: height / 2, left: width / 2, zIndex: 9999 }} />
-        ) : 
-        <>
-        <FlatList
+        ) : <FlatList
+        ref={flatListRef}
           data={data}
           renderItem={renderItem}
           keyExtractor={item => item.id}
-          numColumns={2}
+          
           style={{ 
              flex: 1 ,
             marginHorizontal: 5,
-          
           }}
-        />
-        </>
-
+         
+          ListEmptyComponent={()=>{
+             return (<View
+             style={{
+              alignContent:'center',
+              justifyContent:'center',
+              alignItems:'center',
+              alignSelf:'center',
+              width:width,
+              height:height/1.2
+            }}
+             >
+              <Text
+              style={{
+                alignSelf:'center'
+              }}
+              >No Order Yet</Text>
+          </View>)
+          }}
+          />
       }
+     
       </SafeAreaView>
 
 
@@ -276,4 +276,5 @@ function BeTheOwner({ route, navigation }) {
   );
 }
 
-export default BeTheOwner;
+export default MySpacesBuyed;
+

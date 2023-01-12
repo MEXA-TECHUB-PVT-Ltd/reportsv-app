@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React, { useState, useEffect,useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -29,15 +29,15 @@ import base_url from '../../../consts/base_url';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoginHeader from '../../../components/logins_comp/LoginHeader';
 import Btn from '../../../components/button/Btn';
-import STYLES from '../../../components/button/styles';
 import FBBtn from '../../../components/button/FBBtn';
 import styles from './styles';
-
-
+import STYLES from '../../../components/button/styles';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
-function Signup({ navigation }) {
+function Login({ navigation }) {
+
   // snackbar
   const [visible, setVisible] = useState(false);
   const [snackDetails, setSnackDetails] = useState({
@@ -50,15 +50,18 @@ function Signup({ navigation }) {
 
   // variables
   const [loading, setloading] = useState(false);
-  const [userName, setuserName] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [phone, setPhone] = useState('');
+  const [bitcoinWallet, setBitcoinWallet] = useState('');
+  const [paypalEmail, setPaypalEmail] = useState('');
+  const [card, setCard] = useState('');
+  const [authorRate, setAuthorRate] = useState('');
 
   // register api call
-  const signUp = async link => {
+  const callLogin = async () => {
     setloading(true);
-    if (userName.length == 0 || password.length == 0 || email.length == 0 || phone.length == 0) {
+    if (password.length == 0 || email.length == 0 || name.length == 0 || bitcoinWallet.length == 0 || paypalEmail.length == 0 || card.length == 0 || authorRate.length == 0) {
       setloading(false);
       setSnackDetails({
         text: 'Please fill all the fields',
@@ -67,21 +70,11 @@ function Signup({ navigation }) {
       onToggleSnackBar()
       // alert('Please fill all fields');
     }
-    else if (password.length < 8) {
-      setloading(false);
-      setSnackDetails({
-        text: 'Password must be 8 characters long',
-        backgroundColor: COLORS.red,
-      });
-      onToggleSnackBar()
-      
-    }
-
     else if (
       !/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(email)
     ) {
       setloading(false);
-   
+
       setSnackDetails({
         text: 'Please enter a valid email address',
         backgroundColor: COLORS.red,
@@ -90,7 +83,7 @@ function Signup({ navigation }) {
     }
     else {
 
-      var InsertAPIURL = base_url + '/user/register.php';
+      var InsertAPIURL = base_url + '/authors/register.php';
       var headers = {
         Accept: 'application/json',
         'Content-Type': 'application/json',
@@ -100,17 +93,20 @@ function Signup({ navigation }) {
         method: 'POST',
         headers: headers,
         body: JSON.stringify({
-          EmailAddress: email,
-          Password: password,
-          UserName: userName,
-          phone: phone,
+          name:name,
+          email:email,
+          password:password,
+          bitcoinWallet:bitcoinWallet,
+          paypalEmail:paypalEmail,
+          card:card,
+          authorRate:authorRate,
         }),
       })
         .then(response => response.json())
         .then(response => {
           setloading(false);
-          // console.log(response)
-          if(response[0].error==true) {
+          console.log(response)
+          if (response[0].error == true) {
             setSnackDetails({
               text: response[0].message,
               backgroundColor: COLORS.red,
@@ -123,15 +119,14 @@ function Signup({ navigation }) {
               backgroundColor: COLORS.success,
             });
             onToggleSnackBar()
-            storeData(response[0])
-            getData()
             setTimeout(() => {
-              navigation.navigate('Login')
+              navigation.goBack()  
             }, 2000);
+            
           }
         })
         .catch(error => {
-
+          setloading(false);
           alert('this is error' + error);
         });
     }
@@ -152,14 +147,15 @@ function Signup({ navigation }) {
   const getData = async () => {
     try {
       const jsonValue = await AsyncStorage.getItem('userDetail')
-      // console.log(JSON.parse( AsyncStorage.getItem('userDetail')))
-    const data = JSON.parse(jsonValue)
+      console.log(JSON.parse(jsonValue))
+      const data = JSON.parse(jsonValue)
       // return jsonValue != null ? console.log(JSON.parse(jsonValue)) : null;
     } catch (e) {
       // error reading value
     }
   }
   useEffect(() => {
+
   }, []);
   return (
 
@@ -174,38 +170,68 @@ function Signup({ navigation }) {
       <Snackbar
         visible={visible}
         style={{
-          zIndex:999,
-          backgroundColor:snackDetails.backgroundColor,
-         
+          zIndex: 999,
+          backgroundColor: snackDetails.backgroundColor,
+
         }}
-       
+
         duration={1000}
         onDismiss={onDismissSnackBar}
-        >
-       {snackDetails.text}
+      >
+        {snackDetails.text}
       </Snackbar>
       <ScrollView
         keyboardShouldPersistTaps="always"
         showsVerticalScrollIndicator={false}
         style={{
           paddingHorizontal: '5%',
-         
         }}
       >
         <View
           style={styles.mainView}
         >
-          <LoginHeader navigation={navigation}
-            bkgImgType={'signup'}
-            bkgImgText={'REGISTER TO CONTINUE'}
-          />
-
+         
+          <View
+          style={{
+            flexDirection:'row',
+            justifyContent:'space-between',
+            width:'80%',
+            marginVertical: '5%',
+            alignItems:'center',
+            alignSelf:'flex-start', 
+          }}
+          >
+          <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{
+            alignSelf:'flex-start',
+          }}
+          >
+            <Icon name="arrow-left" size={30} color={COLORS.white} />
+          </TouchableOpacity>
+            <Headline style={{
+              color: COLORS.white,
+              
+            }}>Become an Author</Headline>
+          </View>
           <View style={styles.txtInptView}>
             <TextInput
               style={styles.txtInpt}
               color={'white'}
-              placeholder="User Name"
-              placeholderTextColor={COLORS.white}
+              placeholder="Name"
+              placeholderTextColor={COLORS.light}
+              autoCapitalize="none"
+              underlineColor='white'
+              activeUnderlineColor='white'
+              autoCorrect={false}
+              mode="Flat"
+              onChangeText={text => setName(text)}
+            />
+            <TextInput
+              style={styles.txtInpt}
+              color={'white'}
+              placeholder="Email ID"
+              placeholderTextColor={COLORS.light}
 
               keyboardType="email-address"
               autoCapitalize="none"
@@ -213,101 +239,93 @@ function Signup({ navigation }) {
               activeUnderlineColor='white'
               autoCorrect={false}
               mode="Flat"
-              onChangeText={text => setuserName(text)}
+              onChangeText={text => setEmail(text)}
+            />
+            <TextInput
+              style={[styles.txtInpt, {
+                marginVertical: '1%',
+              }]}
+              color={'white'}
+              placeholder="Password"
+              placeholderTextColor={COLORS.light}
+              secureTextEntry={true}
+              underlineColor='white'
+              activeUnderlineColor='white'
+              autoCapitalize="none"
+              autoCorrect={false}
+
+              mode="Flat"
+              onChangeText={text => setPassword(text)}
             />
             <TextInput
               style={styles.txtInpt}
               color={'white'}
-              placeholder="Email ID"
-              placeholderTextColor={COLORS.white}
+              placeholder="Bitcoin Wallet              "
+              placeholderTextColor={COLORS.light}
+              autoCapitalize="none"
               underlineColor='white'
               activeUnderlineColor='white'
-
-              onChangeText={text => setEmail(text)}
-
+              autoCorrect={false}
               mode="Flat"
+              onChangeText={text => setBitcoinWallet(text)}
             />
             <TextInput
-              style={[styles.txtInpt, {
-                marginVertical: '5%',
-              }]}
+              style={styles.txtInpt}
               color={'white'}
-              placeholder="Password"
-              placeholderTextColor={COLORS.white}
-              secureTextEntry={true}
+              placeholder="Paypal Email"
+              placeholderTextColor={COLORS.light}
+              autoCapitalize="none"
               underlineColor='white'
               activeUnderlineColor='white'
+              autoCorrect={false}
               mode="Flat"
-              onChangeText={text => setPassword(text)}
-              
+              onChangeText={text => setPaypalEmail(text)}
             />
-             
             <TextInput
-              style={[styles.txtInpt, {
-                // marginVertical: '5%',
-              }]}
+              style={styles.txtInpt}
               color={'white'}
-              placeholder="Phone Number"
-              placeholderTextColor={COLORS.white}
-              secureTextEntry={true}
+              placeholder="Card No"
+              placeholderTextColor={COLORS.light}
+              autoCapitalize="none"
               underlineColor='white'
               activeUnderlineColor='white'
+              autoCorrect={false}
+              keyboardType="numeric"
               mode="Flat"
-              keyboardType='phone-pad'
-              onChangeText={text => setPhone(text)}
-              
+              onChangeText={text => setCard(text)}
             />
-             
-
-
+            <TextInput
+              style={styles.txtInpt}
+              color={'white'}
+              placeholder="Author Rate"
+              keyboardType="numeric"
+              placeholderTextColor={COLORS.light}
+              autoCapitalize="none"
+              underlineColor='white'
+              activeUnderlineColor='white'
+              autoCorrect={false}
+              mode="Flat"
+              onChangeText={text => setAuthorRate(text)}
+            />
+            
 
             <Button
               mode='contained'
               style={STYLES.btn}
 
               contentStyle={STYLES.btnContent}
-              onPress={() => signUp()}
+              onPress={() => callLogin()}
               loading={loading}
               disabled={loading}
             >
               <Text
                 style={STYLES.btnText}
               >
-                Register
+                Create Account
               </Text>
             </Button>
 
-
-            <Text
-              style={styles.orView}
-            >- or -</Text>
-            <View
-              style={
-                styles.SgnOrIntxt
-
-              }
-            >
-              <Text
-
-                style={{
-                  color: COLORS.white,
-                }}
-              >Already have an Account? </Text>
-              <TouchableOpacity
-                style={{
-                  left: '5%',
-                }}
-                onPress={() => {
-                  navigation.navigate('Login')
-                }}
-              >
-                <Text
-                  style={styles.signinTxt}
-                >
-                  Signin
-                </Text>
-              </TouchableOpacity>
-            </View>
+            
           </View>
         </View>
       </ScrollView>
@@ -318,4 +336,4 @@ function Signup({ navigation }) {
   );
 }
 
-export default Signup;
+export default Login;

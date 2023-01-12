@@ -5,7 +5,7 @@ import {
   ScrollView,
   StatusBar,
   StyleSheet,
-
+  RefreshControl,
   Image,
   useColorScheme,
   View,
@@ -58,6 +58,13 @@ const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
 function Products({ route, navigation }) {
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    getAllProducts  ();
+  }, []);
+
+
   const refRBSheetTags = useRef();
   const [user_id, setUser_id] = useState('');
   const [data, setData] = useState([]);
@@ -96,6 +103,7 @@ function Products({ route, navigation }) {
     })
       .then(response => response.json())
       .then(response => {
+        setRefreshing(true);
         setloading(false);
         setData(response);
       })
@@ -255,6 +263,13 @@ function Products({ route, navigation }) {
             color={COLORS.primary}
             style={{ position: 'absolute', top: height / 2, left: width / 2, zIndex: 9999 }} />
         ) : <FlatList
+        refreshControl={
+          <RefreshControl
+            refreshing={loading}
+            onRefresh={onRefresh}
+          />
+        }
+        pullToRefresh={refreshing}
           data={data}
           renderItem={renderItem}
           keyExtractor={item => item.id}

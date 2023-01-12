@@ -11,7 +11,7 @@ import {
   Dimensions,
   TouchableOpacity,
   ImageBackground,
-
+  RefreshControl,
   FlatList,
   TouchableWithoutFeedback,
   Linking
@@ -109,6 +109,9 @@ function Agencia({ route, navigation }) {
       });
 
   };
+  const onRefresh = React.useCallback(() => {
+    getAllOrderofUser  ();
+  }, []);
   
   const renderItem = ({ item }) => (
     <TouchableOpacity
@@ -154,32 +157,18 @@ function Agencia({ route, navigation }) {
    
     right={(props) =>{
       return(
-        <TouchableOpacity
-        onPress={() => {
-          if(item.resume=='' || item.resume==null) {
-            alert('No File found');
-          }
-        else {
-          Linking.openURL(image_url+item.resume);
-        }
-        }}
-        >
+        
 <List.Icon 
 style={{
   padding: 10,
   backgroundColor: COLORS.primary,
 }}
-{...props} icon="download" />
-          </TouchableOpacity>
+{...props} icon="arrow-right" />
+       
       )
     } }
   />
-  <Divider 
-  style={{
-    backgroundColor: COLORS.greylight,
-    height:1
-  }}
-  />
+  
   </TouchableOpacity>
   );
   // get user data from async storage
@@ -261,6 +250,13 @@ style={{
             color={COLORS.primary}
             style={{ position: 'absolute', top: height / 2, left: width / 2, zIndex: 9999 }} />
         ) : <FlatList
+        refreshControl={
+          <RefreshControl
+            refreshing={loading}
+            onRefresh={onRefresh}
+          />
+        }
+        pullToRefresh={true}
         ref={flatListRef}
           data={data}
           renderItem={renderItem}

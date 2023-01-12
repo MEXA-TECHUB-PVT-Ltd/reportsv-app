@@ -72,6 +72,9 @@ import MyAppliedJob from './app/src/views/screens/MyAppliedJob/MyAppliedJob';
 import AddNewJob from './app/src/views/screens/AddNewJob/AddNewJob';
 import MyPostedJobs from './app/src/views/screens/MyPostedJobs/MyPostedJobs';
 import MyApplicants from './app/src/views/screens/MyApplicants/MyApplicants';
+import BuyOwner from './app/src/views/screens/BuyOwner/BuyOwner';
+import MyTeamBuyed from './app/src/views/screens/MyTeamBuyed/MyTeamBuyed';
+import BecomeanAuthor from './app/src/views/screens/BecomeanAuthor/BecomeanAuthor';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -269,6 +272,9 @@ const App = () => {
         <Stack.Screen name="AddNewJob" component={AddNewJob} />
         <Stack.Screen name="MyPostedJobs" component={MyPostedJobs} />
         <Stack.Screen name="MyApplicants" component={MyApplicants} />
+        <Stack.Screen name="BuyOwner" component={BuyOwner} />
+        <Stack.Screen name="MyTeamBuyed" component={MyTeamBuyed} />
+        <Stack.Screen name="BecomeanAuthor" component={BecomeanAuthor} />
 
       </Stack.Navigator>
     </NavigationContainer>

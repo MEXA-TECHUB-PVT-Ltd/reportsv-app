@@ -5,7 +5,7 @@ import {
   ScrollView,
   StatusBar,
   StyleSheet,
-
+  RefreshControl ,
   Image,
   useColorScheme,
   View,
@@ -108,7 +108,9 @@ function Sponser({ route, navigation }) {
       });
 
   };
-  
+  const onRefresh = React.useCallback(() => {
+    getAllProducts  ();
+  }, []);
 
   // get user data from async storage
   const getData = async () => {
@@ -291,6 +293,13 @@ function Sponser({ route, navigation }) {
         ) : 
         <>
         <FlatList
+        refreshControl={
+          <RefreshControl
+            refreshing={loading}
+            onRefresh={onRefresh}
+          />
+        }
+        pullToRefresh={true}
           data={data}
           renderItem={renderItem}
           keyExtractor={item => item.id}

@@ -465,6 +465,7 @@ function Discover({ navigation }) {
 
           renderItem={({ item }) => (
             <TouchableOpacity
+            activeOpacity={0.8}
               onPress={() => {
                 // getAllNewsByCategoryId(item.item_id);
                 setCurrentCatName(item.name)
@@ -474,7 +475,7 @@ function Discover({ navigation }) {
               style={styles.renderTouch}
             >
               <View style={[styles.renderView, {
-                backgroundColor: item.id % 2 != 0 ? COLORS.secondary : COLORS.primary,
+                backgroundColor: item.color,
               }]}>
                 <View
                   style={styles.renderView2}

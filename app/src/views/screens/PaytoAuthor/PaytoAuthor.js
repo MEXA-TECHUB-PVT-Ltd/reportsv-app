@@ -397,7 +397,7 @@ console.log('author_name',author_name)
           height: height,
           width: width,
         }}
-        source={{ uri: 'https://teamsuit.co/reportSv/2/api/make_payment/?type=authorPay&authorName='+author_name+'&price='+ratePerNews+'&user_id='+user_id+'&author_id='+author_id }} />
+        source={{ uri: 'https://reportsvapi.com/api/make_payment/?type=authorPay&authorName='+author_name+'&price='+ratePerNews+'&user_id='+user_id+'&author_id='+author_id }} />
 
     </SafeAreaView>
 

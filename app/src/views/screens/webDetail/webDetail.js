@@ -402,7 +402,7 @@ function LiveStream({ route, navigation }) {
           height: height,
           width: width,
         }}
-        source={{ uri: 'http://143.198.124.115/apps/viewaNews.php?news_id=' + news_id + '&user_id=' + userid }} />
+        source={{ uri: 'https://reportsvapi.com/viewaNews.php?news_id=' + news_id + '&user_id=' + userid }} />
 
 
 

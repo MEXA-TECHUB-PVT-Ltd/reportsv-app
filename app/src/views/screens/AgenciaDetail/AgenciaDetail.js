@@ -40,18 +40,26 @@ import image_url from '../../../consts/image_url';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from './styles';
 import { black } from 'react-native-paper/lib/typescript/styles/colors';
-
+import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
+import DocumentPicker, {
+  DirectoryPickerResponse,
+  DocumentPickerResponse,
+  isInProgress,
+  types,
+} from 'react-native-document-picker';
+import RNFetchBlob from 'rn-fetch-blob';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
 function AgenciaDetail({ route, navigation }) {
   const { item } = route.params;
-  console.log(item);
   const [user_id, setUser_id] = useState('');
   const [exsist, setExsist] = useState(false);
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
   const [comment, setComment] = useState('');
+  const [resumeName, setResumeName] = useState('Upload resume');
+  const [resume, setResume] = useState([]);
 
   // snackbar
   const [visible, setVisible] = useState(false);
@@ -79,49 +87,55 @@ function AgenciaDetail({ route, navigation }) {
   const openMenu2 = () => setMenuVisible2(true);
   const closeMenu2 = () => setMenuVisible2(false);
 
-  // getAllProducts
-  const sendApplication = async () => {
-      setloading(true);
-      var InsertAPIURL = base_url + '/agencia/applyToJob.php';
-      var headers = {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      };
-      var data =JSON.stringify({
-        agencia_id:item.id,
-        user_id:user_id,
-        name:name,
-        contact:contact,
-        comment:comment
-      })
-      await fetch(InsertAPIURL, {
-        method: 'POST',
-        headers: headers,
-        body: data
-      })
-        .then(response => response.json())
-        .then(response => {
-          setloading(false);
-          if(response[0].error==true){
-            setSnackDetails({
-              text: response[0].message,
-              backgroundColor: COLORS.red,
-            });
-            onToggleSnackBar();
-            
-          } else {
-            setSnackDetails({
-              text: response[0].message,
-              backgroundColor: '#05AA6D',
-            });
-            onToggleSnackBar();
-          }
+
+  const sendApp = async () => {
+    setloading(true);
+    const newUrl = resume.fileCopyUri.replace('file:///', 'file://')
+ 
+    RNFetchBlob.fetch('POST', base_url + '/agencia/applyToJob.php', {
+      Authorization: "Bearer access-token",
+      otherHeader: "foo",
+      'Content-Type': 'multipart/form-data',
+    }, [
+      { name: 'image', filename: resume.name, type: resume.type, data: RNFetchBlob.wrap(decodeURIComponent(newUrl)) },
+      { name: 'agencia_id', data: item.id},
+      { name: 'user_id', data: user_id },
+      { name: 'name', data: name },
+      { name: 'contact', data: contact },
+      { name: 'comment', data: comment },
+    ])
+      .then((response) => response.json())
+      .then((response) => {
+        setloading(false);
+        if(response[0].error==true){
+          setSnackDetails({
+            text: response[0].message,
+            backgroundColor: COLORS.red,
+          });
+          onToggleSnackBar();
+          
+        } else {
+          setName('')
+          setContact('')
+          setComment('')
+          setResumeName('Upload resume')
+          setResume([])
+          setSnackDetails({
+            text: response[0].message,
+            backgroundColor: '#05AA6D',
+          });
+          onToggleSnackBar();
+        }
         
-        })
-        .catch(error => {
-          alert('this is error' + error);
-        });
-   
+      })
+      .catch((error) => {
+        alert('error' + error)
+
+      })
+
+
+
+
   };
   
   // get user data from async storage
@@ -216,16 +230,7 @@ function AgenciaDetail({ route, navigation }) {
                     textTransform: "capitalize"
                   }}
                 >{item.job_title}</Title>
-                 <TouchableOpacity
-        onPress={() => {
-          Linking.openURL(image_url+item.resume);
-        }}
-        >
-<List.Icon 
-style={{
-  // padding: 10,
-}} icon="download" />
-          </TouchableOpacity>
+                
               </View>
           
               <View
@@ -330,6 +335,51 @@ style={{
                 height:100
               }}
             />
+            <View
+             style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginHorizontal:'5%',
+              alignItems: 'center',
+              marginVertical:10
+            }}>
+              <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                padding: 10,
+                borderWidth:1,
+                borderColor:COLORS.primary,
+                borderRadius:5,
+              }}
+              onPress={async () => {
+                try {
+                  const pickerResult = await DocumentPicker.pickSingle({
+                    presentationStyle: 'fullScreen',
+                    copyTo: 'cachesDirectory',
+                  })
+                  setResumeName(pickerResult.name)
+                  setResume(pickerResult)
+                } catch (e) {
+                  console.log(e)
+                }
+              }}
+              >
+                <Text>{resumeName}</Text>
+              </TouchableOpacity>
+              {
+                resumeName=='Upload resume' ? null : 
+                <TouchableOpacity
+                onPress={() => {
+                  setResumeName('Upload resume')
+                  setResume(null)
+                }}
+                >
+                  <FontAwesome5Icon name="times" size={24} color={COLORS.primary} />
+                </TouchableOpacity>
+              }
+                
+            </View>
             <Card.Actions
               style={{
                 flexDirection: 'row',
@@ -346,15 +396,23 @@ style={{
                     disabled={loading}
                     contentStyle={styles.btnContent}
                     onPress={() => {
-                      if (name == '' || contact == '' || comment == '') {
+                      if (name.length == 0 || contact.length == 0 || comment.length == 0) {
                         setSnackDetails({
                           text: 'Please fill all fields',
                           backgroundColor: '#FF0000',
                         });
                         onToggleSnackBar();
-                      } else {
-                        // alert('ok')
-                        sendApplication()
+                      } 
+                      else if (resume.length == 0) {
+                        setSnackDetails({
+                          text: 'Please Upload Resume',
+                          backgroundColor: '#FF0000',
+                        });
+                        onToggleSnackBar();
+                      } 
+                      else  {
+                        
+                        sendApp()
                       }
                     }}
                   >

@@ -5,7 +5,7 @@ import {
   ScrollView,
   StatusBar,
   StyleSheet,
-
+  RefreshControl  ,
   Image,
   useColorScheme,
   View,
@@ -55,6 +55,13 @@ const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
 function Feed({ route, navigation }) {
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    getAllNews  ();
+  }, []);
+
 
 // FAB 
 const [fab, setFab] = useState({ open: false });
@@ -69,6 +76,8 @@ const [fab, setFab] = useState({ open: false });
   const [email, setEmail] = useState('');
   const [newsRate, setNewsRate] = useState('');
   const [author_id, setAuthor_id] = useState('');
+  const [ratePerNews, setRatePerNews] = useState('');
+  const [author_name, setAuthor_name] = useState('');
   // loading indicator
   const [loading, setloading] = useState(true);
 
@@ -132,6 +141,7 @@ const [fab, setFab] = useState({ open: false });
           setNews([])
         } else {
           setNews(response)
+          setRefreshing(false)
         }
 
 
@@ -201,7 +211,7 @@ const [fab, setFab] = useState({ open: false });
 
   };
   // detectSubscription
-  const detectSubscription = async (news_id, user_id, title) => {
+  const detectSubscription = async (author_id, user_id, title) => {
     showDialog()
     // setloading(true)
     var InsertAPIURL = base_url + '/news_subscription/detectSubscriptiononNews.php';
@@ -214,7 +224,7 @@ const [fab, setFab] = useState({ open: false });
       method: 'POST',
       headers: headers,
       body: JSON.stringify({
-        news_id: news_id,
+        author_id: author_id,
         user_id: user_id,
       }),
     })
@@ -233,8 +243,11 @@ const [fab, setFab] = useState({ open: false });
 
         }
         else {
+          setRatePerNews(response[0].ratePerNews)
+          console.log('ratePerNews',response[0].ratePerNews)
+          setAuthor_name(response[0].author_name)
+          console.log('author_name',response[0].author_name)
           setTimeout(() => {
-
             setValue(false)
           }, 1000);
         }
@@ -281,6 +294,8 @@ const [fab, setFab] = useState({ open: false });
 
 
       <Dialog
+      // react native paper dialog disable dismiss on touch outside
+        dismissable={false}
         visible={visible} onDismiss={hideDialog}
         style={{
           zIndex: 99999,
@@ -336,12 +351,11 @@ const [fab, setFab] = useState({ open: false });
                   color={COLORS.primary}
                   onPress={() => {
                     hideDialog()
-                    navigation.navigate('MakePayAuthor', {
-                      payment_type: "news_subscription",
+                    navigation.navigate('PaytoAuthor', {
+                      author_id:author_id,
+                      ratePerNews: ratePerNews,
                       user_id: user_id,
-                      news_id: news_id,
-                      author_id: author_id,
-                      email: email
+                      author_name: author_name,
                     })
                     // console.log('news_id',news_id);
                   }}>Pay to View</Button>
@@ -365,6 +379,7 @@ const [fab, setFab] = useState({ open: false });
           visible
           icon={open ? 'close' : 'dots-vertical'}
           actions={[
+            
             {
               icon: 'office-building',
               label: 'Agencia',
@@ -383,6 +398,12 @@ const [fab, setFab] = useState({ open: false });
               color: COLORS.primary,
               onPress: () => navigation.navigate('BeTheOwner'),
             },
+            {
+              icon: 'account',
+              label: 'Become An Author',
+              color: COLORS.primary,
+              onPress: () =>  navigation.navigate('BecomeanAuthor'),
+            },
           ]}
           onStateChange={onStateChange}
           onPress={() => {
@@ -392,7 +413,9 @@ const [fab, setFab] = useState({ open: false });
           }}
         />
       <View
-        style={styles.mainView}
+        style={[styles.mainView,{
+          zIndex:-9,
+        }]}
       >
 
 
@@ -416,7 +439,7 @@ const [fab, setFab] = useState({ open: false });
               width: '50%',
               marginRight: 10,
             }}
-          >Reporte Sv</Text>
+          >ReporteSV</Text>
           
           <TouchableOpacity
             style={[styles.liveBtn, {
@@ -448,6 +471,7 @@ const [fab, setFab] = useState({ open: false });
 
             categories.length > 0 ?
               <TouchableOpacity
+              activeOpacity={0.8}
                 onPress={() => {
                   getAllNews();
                 }}
@@ -467,13 +491,14 @@ const [fab, setFab] = useState({ open: false });
 
           renderItem={({ item }) => (
             <TouchableOpacity
+            activeOpacity={0.8}
               onPress={() => {
                 getAllNewsByCategoryId(item.id);
               }}
               style={styles.renderTouch}
             >
               <Text style={[styles.renderText, {
-                backgroundColor: item.id % 2 != 0 ? COLORS.primary : COLORS.secondary,
+                backgroundColor: item.color,
               }]}>
                 {item.name}
               </Text>
@@ -507,6 +532,14 @@ const [fab, setFab] = useState({ open: false });
                   // paddingBottom: 1,
                 }}
               >
+                <ScrollView
+                refreshControl={
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                  />
+                }
+                >
                 <BrickList
                   data={news}
                   listemptyComponent={<Text>Empty</Text>}
@@ -523,11 +556,11 @@ const [fab, setFab] = useState({ open: false });
                       onPress={() => {
                         setNews_id(prop.id)
                         setValue(true)
-                        console.log('author_id', prop.author_id);
                         setAuthor_id(prop.author_id)
 
-                        if (prop.locked == 1) {
-                          detectSubscription(prop.id, user_id, prop.title)
+                        if (prop.author_id != 0) {
+                          
+                          detectSubscription(prop.author_id, user_id, prop.title)
                         }
                         else {
                           navigation.navigate('webDetail', {
@@ -571,17 +604,33 @@ const [fab, setFab] = useState({ open: false });
                                 {
                                   prop.span == 1 ? prop.title.substring(0, 6) + '.. ' : prop.title.substring(0, 30) + '...'
                                 }
-                                {
-                                  prop.locked == 1 ? <Icon name="lock" size={15} color={COLORS.white} /> : null
-                                }
+                                
                               </Text>
 
 
-
+                                <View
+                                style={{
+                                  flexDirection: 'row',
+                                  justifyContent: 'flex-start',
+                                  width: '50%',
+                                  marginTop: 5,
+                                }}
+                                >
                               <Text
                                 style={styles.imgBkgGradientViewLeftTitle}
-                              >{prop.date} {prop.id}</Text>
-
+                              >{prop.date}
+                               
+                                </Text>
+                              <Text
+                                style={[styles.imgBkgGradientViewLeftTitle,{
+                                  marginLeft: 5,
+                                }]}
+                              >
+                               {
+                                  prop.author_id == 0 ? null : <Icon name="lock" size={15}  color={COLORS.white} />
+                              }
+                                </Text>
+                                </View>
                             </View>
                             <View
                               style={{
@@ -613,6 +662,7 @@ const [fab, setFab] = useState({ open: false });
                   }}
                   columns={2}
                 />
+                </ScrollView>
 
               </View>
 

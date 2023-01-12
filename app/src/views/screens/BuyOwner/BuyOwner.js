@@ -52,17 +52,16 @@ import { WebView } from 'react-native-webview';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
-function BuySpace({ route, navigation }) {
+function BuyOwner({ route, navigation }) {
   const webviewRef = useRef();
 
   const refRBSheetTags = useRef();
   const { 
-        sponser_id,
-        price,
-        user_id,
-        share_name,
-        space_want
-   } = route.params;
+    share_id,
+    price,
+    user_id,
+    share_name,
+  } = route.params;
 
   const [cat_id, setCat_id] = useState('');
   
@@ -92,19 +91,9 @@ function BuySpace({ route, navigation }) {
 
   function onMessage(data) {
     if(data.nativeEvent.data=='record_updated'){
-      navigation.navigate('Sponser')
+      navigation.navigate('BeTheOwner')
     }
   }
-  
-  
-  
-  
-
-  
-
-
-  
-  
   // get user data from async storage
   // const getData = async () => {
   //   try {
@@ -153,7 +142,7 @@ function BuySpace({ route, navigation }) {
             navigation.goBack()
         }}
         />
-        <Appbar.Content title="Sponser Space"
+        <Appbar.Content title="Buy Team"
         // subtitle="News Details"
         />
 
@@ -171,12 +160,7 @@ function BuySpace({ route, navigation }) {
           height: height,
           width: width,
         }}
-        
-
-
-
-
-        source={{ uri: 'https://reportsvapi.com/api/BuySpace/?type=authorPay&share_name='+share_name+'&price='+price+'&user_id='+user_id+'&space_want='+space_want+'&sponser_id='+sponser_id }} />
+        source={{ uri: 'https://reportsvapi.com/api/BuyOwner/?type=authorPay&share_id='+share_id+'&price='+price+'&user_id='+user_id+'&share_name='+share_name }} />
 
     </SafeAreaView>
 
@@ -185,4 +169,4 @@ function BuySpace({ route, navigation }) {
   );
 }
 
-export default BuySpace;
+export default BuyOwner;
