@@ -48,14 +48,14 @@ import RBSheet from "react-native-raw-bottom-sheet";
 import BrickList from 'react-native-masonry-brick-list';
 import styles from './styles';
 import { WebView } from 'react-native-webview';
-
+import { useIsFocused } from '@react-navigation/native';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
 function LiveStream({ route, navigation }) {
   const scrollRef = useRef();
   const webviewRef = useRef();
-
+  const isFocused = useIsFocused();
   const refRBSheetTags = useRef();
   const {news_id, userid,title,navigation_to } = route.params;
   console.log('title', title);
@@ -340,12 +340,30 @@ function LiveStream({ route, navigation }) {
       alert('Failed to fetch the data from storage')
     }
   }
+     // langauge 
+     const [language, setLanguage] = useState(null);
+     const storeLanguage = async (value) => {
+       try {
+         await AsyncStorage.setItem('language', value)
+       } catch (e) {
+         // saving error
+       }
+     }
+     const getLanguage = async () => {
+       try {
+         const value = await AsyncStorage.getItem('language')
+         console.log(value)
+         setLanguage(value)
+       } catch(e) {
+         // error reading value
+       }
+     }
   useEffect(() => {
-
+    getLanguage()
     getData()
     sendDataToWebView()
     console.log(news_id)
-  }, []);
+  }, [isFocused]);
   return (
 
 
@@ -384,7 +402,10 @@ function LiveStream({ route, navigation }) {
           }
         }}
         />
-        <Appbar.Content title="News Details"
+        <Appbar.Content title={
+          language == 'en' ? "News Details" : "Detalles de noticias"
+        }
+        
         // subtitle="News Details"
         />
 
@@ -422,8 +443,9 @@ function LiveStream({ route, navigation }) {
               title: title,
             })
           }}
-          title="All Comment"
-
+          title={
+            language == 'en' ? "All Comment" : "Todos los comentarios"
+          }
           titleStyle={{
             fontSize: 10,
             color: COLORS.white,
@@ -510,7 +532,9 @@ function LiveStream({ route, navigation }) {
               style={[styles.bkgImgText, {
                 marginVertical: '2%',
               }]}
-            >Add a Comment</Text>
+            >{
+                language == 'en' ? "Add a Comment" : "Añadir un comentario"
+            }</Text>
             <TouchableOpacity
               onPress={() => {
                 refRBSheet.current.close()
@@ -528,7 +552,9 @@ function LiveStream({ route, navigation }) {
           <TextInput
             style={styles.txtInpt}
             color={'white'}
-            placeholder="Add comment here"
+            placeholder={
+              language == 'en' ? "Add comment here" : "Añadir comentario aquí"
+            }
             placeholderTextColor={COLORS.white}
             multiline={true}
             numberOfLines={4}
@@ -548,7 +574,9 @@ function LiveStream({ route, navigation }) {
           >
             <Text
               style={styles.btnText}
-            >ADD COMMENT
+            >{
+                language == 'en' ? "ADD COMMENT" : 'AGREGAR COMENTARIO'
+            } 
             </Text>
           </Button>
 

@@ -48,10 +48,12 @@ import DocumentPicker, {
   types,
 } from 'react-native-document-picker';
 import RNFetchBlob from 'rn-fetch-blob';
+import { useIsFocused } from '@react-navigation/native';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
 function AgenciaDetail({ route, navigation }) {
+  const isFocused = useIsFocused();
   const { item } = route.params;
   const [user_id, setUser_id] = useState('');
   const [exsist, setExsist] = useState(false);
@@ -151,12 +153,34 @@ function AgenciaDetail({ route, navigation }) {
     }
   }
 
-
+// langauge 
+const [language, setLanguage] = useState(null);
+const storeLanguage = async (value) => {
+  try {
+    await AsyncStorage.setItem('language', value)
+  } catch (e) {
+    // saving error
+  }
+}
+const getLanguage = async () => {
+  try {
+    const value = await AsyncStorage.getItem('language')
+    console.log(value)
+    setLanguage(value)
+  } catch(e) {
+    // error reading value
+  }
+}
 
   useEffect(() => {
+    getLanguage()
     getData()
+    return () => {
+      // cleanup
+      setloading(false)
+    }
     // getAllProducts()
-  }, []);
+  }, [isFocused]);
 
   return (
 
@@ -189,7 +213,9 @@ function AgenciaDetail({ route, navigation }) {
             navigation.goBack()
           }}
           />
-          <Appbar.Content title="Job Detail"
+          <Appbar.Content title={
+            language == 'en' ? 'Job Detail' : 'Detalles del trabajo'
+          }
           />
           
           
@@ -256,7 +282,10 @@ function AgenciaDetail({ route, navigation }) {
                 padding: 10,
               }}
               >
-                <Text>Salary</Text>
+                <Text>{
+                  language == 'en' ? 'Salary' : 'Salario'
+                  }
+                  </Text>
                 <Text>$ {item.salary}</Text>
               </View>
               <Divider
@@ -274,7 +303,9 @@ function AgenciaDetail({ route, navigation }) {
 
               }}
               >
-                Description
+                {
+                  language == 'en' ? 'Job Description' : 'Descripción del trabajo'
+                }
               </Text>
               <Paragraph
               style={{
@@ -293,10 +324,14 @@ function AgenciaDetail({ route, navigation }) {
 
               }}
               >
-                  Apply to Job
+                {
+                  language == 'en' ? 'Apply to Job' : 'Aplicar al trabajo'
+                }
               </Text>
             <TextInput
-              label="Name"
+              label={
+                language == 'en' ? 'Name' : 'Nombre'
+              }
               value={name}
               activeUnderlineColor={COLORS.primary}
               onChangeText={(text) => {
@@ -309,7 +344,9 @@ function AgenciaDetail({ route, navigation }) {
               }}
             />
             <TextInput
-              label="Contact No."
+              label={
+                language == 'en' ? 'Contact No.' : 'Contacto No.'
+              }
               value={contact}
               activeUnderlineColor={COLORS.primary}
               onChangeText={(text) => {
@@ -322,7 +359,9 @@ function AgenciaDetail({ route, navigation }) {
               }}
             />
             <TextInput
-              label="Comment"
+              label={
+                language == 'en' ? 'Comment' : 'Comentario'
+              }
               value={comment}
               activeUnderlineColor={COLORS.primary}
               onChangeText={(text) => {
@@ -398,14 +437,16 @@ function AgenciaDetail({ route, navigation }) {
                     onPress={() => {
                       if (name.length == 0 || contact.length == 0 || comment.length == 0) {
                         setSnackDetails({
-                          text: 'Please fill all fields',
+                          text:
+                          language == 'en' ? 'Please fill all fields' :
+                          'Por favor llene todos los campos',
                           backgroundColor: '#FF0000',
                         });
                         onToggleSnackBar();
                       } 
                       else if (resume.length == 0) {
                         setSnackDetails({
-                          text: 'Please Upload Resume',
+                          text: language == 'en' ? 'Please Upload Resume': 'Por favor suba su currículum',
                           backgroundColor: '#FF0000',
                         });
                         onToggleSnackBar();
@@ -421,7 +462,10 @@ function AgenciaDetail({ route, navigation }) {
                     <Text
                       style={styles.btnText}
                     >
-                      Apply
+                      {
+                        language == 'en' ? 'Apply' : 'Aplicar'
+                      }
+                      
                     </Text>
                   </Button>
              

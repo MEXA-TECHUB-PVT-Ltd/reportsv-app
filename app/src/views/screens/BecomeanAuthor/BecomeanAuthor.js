@@ -33,11 +33,12 @@ import FBBtn from '../../../components/button/FBBtn';
 import styles from './styles';
 import STYLES from '../../../components/button/styles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useIsFocused } from '@react-navigation/native';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
 function Login({ navigation }) {
-
+  const isFocused = useIsFocused();
   // snackbar
   const [visible, setVisible] = useState(false);
   const [snackDetails, setSnackDetails] = useState({
@@ -64,7 +65,7 @@ function Login({ navigation }) {
     if (password.length == 0 || email.length == 0 || name.length == 0 || bitcoinWallet.length == 0 || paypalEmail.length == 0 || card.length == 0 || authorRate.length == 0) {
       setloading(false);
       setSnackDetails({
-        text: 'Please fill all the fields',
+        text:language=='en'?'Please fill all the fields':'Por favor llene todos los campos',
         backgroundColor: COLORS.red,
       });
       onToggleSnackBar()
@@ -154,9 +155,27 @@ function Login({ navigation }) {
       // error reading value
     }
   }
+  // langauge 
+const [language, setLanguage] = useState(null);
+const storeLanguage = async (value) => {
+  try {
+    await AsyncStorage.setItem('language', value)
+  } catch (e) {
+    // saving error
+  }
+}
+const getLanguage = async () => {
+  try {
+    const value = await AsyncStorage.getItem('language')
+    console.log(value)
+    setLanguage(value)
+  } catch(e) {
+    // error reading value
+  }
+}
   useEffect(() => {
-
-  }, []);
+    getLanguage()
+  }, [isFocused]);
   return (
 
 
@@ -212,13 +231,17 @@ function Login({ navigation }) {
             <Headline style={{
               color: COLORS.white,
               
-            }}>Become an Author</Headline>
+            }}>{
+              language == 'en' ? 'Become an Author' : 'Conviértete en autora'
+            }</Headline>
           </View>
           <View style={styles.txtInptView}>
             <TextInput
               style={styles.txtInpt}
               color={'white'}
-              placeholder="Name"
+              placeholder={
+                language == 'en' ? 'Name' : 'Nombre'
+              }
               placeholderTextColor={COLORS.light}
               autoCapitalize="none"
               underlineColor='white'
@@ -230,7 +253,10 @@ function Login({ navigation }) {
             <TextInput
               style={styles.txtInpt}
               color={'white'}
-              placeholder="Email ID"
+              placeholder={
+                language == 'en' ? 'Email ID' : 'Identificación de correo electrónico'
+              }
+              
               placeholderTextColor={COLORS.light}
 
               keyboardType="email-address"
@@ -246,7 +272,9 @@ function Login({ navigation }) {
                 marginVertical: '1%',
               }]}
               color={'white'}
-              placeholder="Password"
+              placeholder={
+                language == 'en' ? 'Password' : 'Contraseña'
+              }
               placeholderTextColor={COLORS.light}
               secureTextEntry={true}
               underlineColor='white'
@@ -260,7 +288,9 @@ function Login({ navigation }) {
             <TextInput
               style={styles.txtInpt}
               color={'white'}
-              placeholder="Bitcoin Wallet              "
+              placeholder={
+                language == 'en' ? 'Bitcoin Wallet' : 'Billetera de Bitcoin'
+              }
               placeholderTextColor={COLORS.light}
               autoCapitalize="none"
               underlineColor='white'
@@ -272,7 +302,9 @@ function Login({ navigation }) {
             <TextInput
               style={styles.txtInpt}
               color={'white'}
-              placeholder="Paypal Email"
+              placeholder={
+                language == 'en' ? 'Paypal Email' : 'Correo electrónico de Paypal'
+              }
               placeholderTextColor={COLORS.light}
               autoCapitalize="none"
               underlineColor='white'
@@ -284,7 +316,9 @@ function Login({ navigation }) {
             <TextInput
               style={styles.txtInpt}
               color={'white'}
-              placeholder="Card No"
+              placeholder={
+                language == 'en' ? 'Card No' : 'No de tarjeta'
+              }
               placeholderTextColor={COLORS.light}
               autoCapitalize="none"
               underlineColor='white'
@@ -297,7 +331,9 @@ function Login({ navigation }) {
             <TextInput
               style={styles.txtInpt}
               color={'white'}
-              placeholder="Author Rate"
+              placeholder={
+                language == 'en' ? 'Author Rate' : 'Tasa de autor'
+              }
               keyboardType="numeric"
               placeholderTextColor={COLORS.light}
               autoCapitalize="none"
@@ -320,8 +356,10 @@ function Login({ navigation }) {
             >
               <Text
                 style={STYLES.btnText}
-              >
-                Create Account
+              >{
+                language == 'en' ? 'Create Account' : 'Crear una cuenta'
+              }
+                
               </Text>
             </Button>
 

@@ -55,13 +55,14 @@ import BrickList from 'react-native-masonry-brick-list';
 import styles from './styles';
 import { WebView } from 'react-native-webview';
 import { color } from 'react-native-reanimated';
+import { useIsFocused } from '@react-navigation/native';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
 function MyAppliedJob({ route, navigation }) {
   const {  user_id} = route.params;
-
+const isFocused = useIsFocused();
   const [data, setData] = useState([]);
  const flatListRef=useRef();
   // bottom sheet end
@@ -194,8 +195,20 @@ function MyAppliedJob({ route, navigation }) {
     description={()=>{
       return(
         <View>
-        <Text>Job Type : {item.job_type}</Text>
-        <Text>Salary : {item.salary}</Text>
+        <Text>
+          {
+            language=='en'?
+            'Job Type : '
+            :
+            'Tipo de trabajo : '
+          } {item.job_type}</Text>
+        <Text>
+          {
+            language=='en'?
+            'Salary : '
+            :
+            'Salario : '
+          }{item.salary}</Text>
       </View>
       )
     }}
@@ -229,16 +242,34 @@ color={COLORS.red}
   </TouchableOpacity>
   );
   
+  // langauge 
+const [language, setLanguage] = useState(null);
+const storeLanguage = async (value) => {
+  try {
+    await AsyncStorage.setItem('language', value)
+  } catch (e) {
+    // saving error
+  }
+}
+const getLanguage = async () => {
+  try {
+    const value = await AsyncStorage.getItem('language')
+    console.log(value)
+    setLanguage(value)
+  } catch(e) {
+    // error reading value
+  }
+}
   useEffect(() => {
 
-   
+    getLanguage();
     getAllOrderofUser()
     // getData()
     return () => {
       setData({}); // This worked for me
       
     };
-  }, []);
+  }, [isFocused]);
   return (
 
 
@@ -272,7 +303,9 @@ color={COLORS.red}
           navigation.goBack();
         }}
         />
-        <Appbar.Content title="My Applied Job"/>
+        <Appbar.Content title={
+          language=='en' ? "My Applied Job" : "Mi trabajo aplicado"
+        }/>
         
        
       </Appbar.Header>
@@ -307,7 +340,9 @@ color={COLORS.red}
               style={{
                 alignSelf:'center'
               }}
-              >You have not Applied to any Job Yet</Text>
+              >{
+                language=='en' ? "You have not Applied to any Job Yet" : "No has aplicado a ningún trabajo todavía"
+              }</Text>
           </View>)
           }}
           />

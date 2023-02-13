@@ -259,8 +259,26 @@ function Discover({ navigation }) {
       alert('Failed to fetch the data from storage')
     }
   }
+     // langauge 
+const [language, setLanguage] = useState(null);
+const storeLanguage = async (value) => {
+  try {
+    await AsyncStorage.setItem('language', value)
+  } catch (e) {
+    // saving error
+  }
+}
+const getLanguage = async () => {
+  try {
+    const value = await AsyncStorage.getItem('language')
+    console.log(value)
+    setLanguage(value)
+  } catch(e) {
+    // error reading value
+  }
+}
   useEffect(() => {
-
+    getLanguage()
     getData()
   }, [isFocused]);
   return (
@@ -298,12 +316,16 @@ function Discover({ navigation }) {
           <Text
             adjustsFontSizeToFit={true}
             style={styles.bkgImgText}
-          >DISCOVER</Text>
+          >{
+              language == 'en' ? 'DISCOVER' : 'DESCUBRE'
+          }</Text>
         </ImageBackground>
         <Headline
           style={styles.headline}
         >
-          My Followed Category
+          {
+            language == 'en' ? 'My Followed Category' : 'Mi categoría seguida'
+          }
         </Headline>
         <FlatList
           data={category}
@@ -334,7 +356,9 @@ function Discover({ navigation }) {
                     marginVertical: 10,
                   }}
                 >
-                  Not Followed Category Found
+                  {
+                    language == 'en' ? 'No Followed Category Found' : 'No se encontró la categoría seguida'
+                  }
                 </Text>
               </View>
             </View>
@@ -360,8 +384,10 @@ function Discover({ navigation }) {
               >
                 <Headline
                   style={styles.headline}
-                >
-                   Author
+                >{
+                    language == 'en' ? 'Author' : 'Autor'
+                }
+                   
                 </Headline>
                 <FlatList
                   data={authors}
@@ -395,7 +421,11 @@ function Discover({ navigation }) {
                             marginVertical: 10,
                           }}
                         >
-                          Not Followed any Author
+                        {
+                    language == 'en' ? 'Not Followed any Author' 
+                    : 'No se ha seguido ningún autor'
+                }
+                          
                         </Text>
                       </View>
                     </View>

@@ -166,7 +166,7 @@ const updateProfileData = async link => {
   if (userName.length == 0 || password.length == 0 || email.length == 0) {
     setbtnLoading(false);
     setSnackDetails({
-      text: 'Please fill all the fields',
+      text: language == 'en' ? 'Please fill all the fields' :'Por favor llene todos los campos',       
       backgroundColor: COLORS.red,
     });
     onToggleSnackBar()
@@ -175,7 +175,7 @@ const updateProfileData = async link => {
   else if (password.length < 8) {
     setbtnLoading(false);
     setSnackDetails({
-      text: 'Password must be 8 characters long',
+      text: language == 'en' ? 'Password must be at least 8 characters' : 'La contraseña debe tener al menos 8 caracteres',
       backgroundColor: COLORS.red,
     });
     onToggleSnackBar()
@@ -261,7 +261,26 @@ const updateProfileData = async link => {
       // error reading value
     }
   }
+  // langauge 
+const [language, setLanguage] = useState(null);
+const storeLanguage = async (value) => {
+  try {
+    await AsyncStorage.setItem('language', value)
+  } catch (e) {
+    // saving error
+  }
+}
+const getLanguage = async () => {
+  try {
+    const value = await AsyncStorage.getItem('language')
+    console.log(value)
+    setLanguage(value)
+  } catch(e) {
+    // error reading value
+  }
+}
   useEffect(() => {
+    getLanguage()
     getData()
   }, []);
   return (
@@ -314,7 +333,12 @@ const updateProfileData = async link => {
             <Text
               adjustsFontSizeToFit={true}
               style={styles.bkgImgText}
-            >EDIT PROFILE</Text>
+            >
+              {
+                language == 'en' ?
+                  'EDIT PROFILE' : 'EDITAR PREFIL'
+              }
+              </Text>
           </View>
 
         </ImageBackground>
@@ -352,7 +376,10 @@ const updateProfileData = async link => {
             shadowColor: COLORS.primary,
             backgroundColor: COLORS.primary,
           }]}>
-            CHANGE
+            {
+              language == 'en' ?
+                'CHANGE' : 'CAMBIO'
+            }
           </Text>
         </TouchableOpacity>
         <View
@@ -360,7 +387,11 @@ const updateProfileData = async link => {
         >
           <Text
             style={styles.txtInptLabel}
-          >Username</Text>
+          >{
+              language == 'en' ?
+                'Username' : 'Nombre de usuario'
+          }
+        </Text>
           <TextInput
             style={styles.txtInpt}
             color={'white'}
@@ -378,7 +409,12 @@ const updateProfileData = async link => {
         >
           <Text
             style={styles.txtInptLabel}
-          >Email</Text>
+          >
+            {
+              language == 'en' ?
+                'Email' : 'Correo electrónico'
+            }
+            </Text>
           <TextInput
             style={styles.txtInpt}
             color={'white'}
@@ -396,7 +432,12 @@ const updateProfileData = async link => {
         >
           <Text
             style={styles.txtInptLabel}
-          >Password</Text>
+          >
+            {
+              language == 'en' ?  
+                'Password' : 'Contraseña'
+            }
+            </Text>
           <TextInput
             style={styles.txtInpt}
             color={'white'}
@@ -420,7 +461,11 @@ const updateProfileData = async link => {
 
           <Text
             style={styles.btnText}
-          >UPDATE
+          >
+            {
+              language == 'en' ?
+                'UPDATE' : 'ACTUALIZAR'
+            }
           </Text>
         </Button>
 
@@ -486,7 +531,10 @@ const updateProfileData = async link => {
             <Icon name="camera" size={20} color={COLORS.light} />
             <Text
               style={styles.uploadText2}
-            >Upload From Camera</Text>
+            >{
+                language == 'en' ?
+                  'Upload From Camera' : 'Subir desde la cámara'
+            }</Text>
           </TouchableOpacity>
           <View style={styles.hr}>
           </View>
@@ -500,7 +548,10 @@ const updateProfileData = async link => {
             <Icon name="image" size={20} color={COLORS.light} />
             <Text
               style={styles.uploadText2}
-            >Upload From Gallery</Text>
+            >{
+                language == 'en' ?
+                  'Upload From Gallery' : 'Subir desde la galería'
+            }</Text>
           </TouchableOpacity>
 
         </View>

@@ -54,11 +54,13 @@ import BrickList from 'react-native-masonry-brick-list';
 import styles from './styles';
 import { WebView } from 'react-native-webview';
 import { color } from 'react-native-reanimated';
+import { useIsFocused } from '@react-navigation/native';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
 function CartList({ route, navigation }) {
+  const isFocused = useIsFocused();
   const {uniq_id,order_status}=route.params;
   const refRBSheetTags = useRef();
   const [user_id, setUser_id] = useState('');
@@ -241,7 +243,10 @@ function CartList({ route, navigation }) {
       
       <Text style={{
         color: COLORS.light,
-      }}>Price : </Text>
+      }}>{
+        language=='en'?'Price':'Precio'
+      }
+         : </Text>
       <Text style={{
         marginHorizontal:5,
         color: COLORS.light,
@@ -257,7 +262,11 @@ function CartList({ route, navigation }) {
       
       <Text style={{
         color: COLORS.light,
-      }}>Quantity : </Text>
+      }}>
+        {
+        language=='en'?'Quantity':'Cantidad'
+        }
+         : </Text>
       <Text style={{
         marginHorizontal:5,
         color: COLORS.light,
@@ -270,15 +279,32 @@ function CartList({ route, navigation }) {
   <Divider />
   </>
   );
+  const [language, setLanguage] = useState(null);
+  const storeLanguage = async (value) => {
+    try {
+      await AsyncStorage.setItem('language', value)
+    } catch (e) {
+      // saving error
+    }
+  }
+  const getLanguage = async () => {
+    try {
+      const value = await AsyncStorage.getItem('language')
+      console.log(value)
+      setLanguage(value)
+    } catch(e) {
+      // error reading value
+    }
+  }
 
   useEffect(() => {
-
+    getLanguage()
     getData()
     getAllItemsinCart()
     return () => {
-      setData({}); // This worked for me
+      setloading(false);
     };
-  }, []);
+  }, [isFocused]);
   return (
 
 
@@ -312,7 +338,9 @@ function CartList({ route, navigation }) {
           navigation.goBack()
         }}
         />
-        <Appbar.Content title="Order Detail"
+        <Appbar.Content title={
+          language=='en' ? "Order Detail" : "Detalle de la orden"
+        }
         subtitle={'Order # '+uniq_id}
         />
        
@@ -361,7 +389,9 @@ function CartList({ route, navigation }) {
               justifyContent: 'space-between',
             }}
             >
-                <Headline>Total :</Headline>
+                <Headline>{
+                  language=='en' ? "Total" : "Total"
+                  } :</Headline>
                 <Headline>$ {total}</Headline>
             </View>
            

@@ -42,12 +42,13 @@ import styles from './styles';
 import { black } from 'react-native-paper/lib/typescript/styles/colors';
 import DocumentPicker from 'react-native-document-picker';
 import RNFetchBlob from 'rn-fetch-blob';
+import { useIsFocused } from '@react-navigation/native';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
 function AddNewJob({ route, navigation }) {
   const [user_id]= route.params.user_id;
-
+  const isFocused = useIsFocused();
   
   const [exsist, setExsist] = useState(false);
   const [job_title, setjob_title] = useState('');
@@ -89,7 +90,7 @@ function AddNewJob({ route, navigation }) {
    salary=='' || 
    description=='' ) {
     setSnackDetails({
-      text: 'Please fill all fields',
+      text: language == 'en' ? 'Please fill all fields' : 'Por favor llena todos los espacios',
       backgroundColor: 'red',
     });
     onToggleSnackBar();
@@ -151,14 +152,31 @@ function AddNewJob({ route, navigation }) {
    
     
   };
-
+   // langauge 
+   const [language, setLanguage] = useState(null);
+   const storeLanguage = async (value) => {
+     try {
+       await AsyncStorage.setItem('language', value)
+     } catch (e) {
+       // saving error
+     }
+   }
+   const getLanguage = async () => {
+     try {
+       const value = await AsyncStorage.getItem('language')
+       console.log(value)
+       setLanguage(value)
+     } catch(e) {
+       // error reading value
+     }
+   }
 
   useEffect(() => {
-   
+      getLanguage()
     // getAllProducts()
     return () => {
       setresume({}); // This worked for me
-      
+
     };
   }, []);
 
@@ -193,7 +211,9 @@ function AddNewJob({ route, navigation }) {
             navigation.goBack()
           }}
           />
-          <Appbar.Content title="Post Your Job"
+          <Appbar.Content title={
+            language == 'en' ? "Post Your Job" : "Publicar tu trabajo"
+          }
           />
           
           
@@ -288,7 +308,9 @@ function AddNewJob({ route, navigation }) {
                         <Text
                         
                         >
-                          Contract
+                          {
+                            language == 'en' ? "Contract" : "Contrato"
+                          }
                         </Text>
 
                       </View>
@@ -315,7 +337,10 @@ function AddNewJob({ route, navigation }) {
                         <Text
                         
                         >
-                          Fresher
+                          {
+                            language == 'en' ? "Fresher" : "Principiante"
+                          }
+                          
                         </Text>
 
                       </View>
@@ -341,8 +366,10 @@ function AddNewJob({ route, navigation }) {
                       >
                         <Text
                         
-                        >
-                          Full-time
+                        > {
+                            language == 'en' ? "Full-time" : "Tiempo completo"
+                        }
+                          
                         </Text>
 
                       </View>
@@ -368,8 +395,10 @@ function AddNewJob({ route, navigation }) {
                       >
                         <Text
                         
-                        >
-                          Internship
+                        >{
+                            language == 'en' ? "Internship" : "Prácticas"
+                        }
+                          
                         </Text>
 
                       </View>
@@ -395,8 +424,10 @@ function AddNewJob({ route, navigation }) {
                       >
                         <Text
                         
-                        >
-                          Part-time
+                        > {
+                            language == 'en' ? "Part-time" : "Medio tiempo"
+                        }
+                          
                         </Text>
 
                       </View>
@@ -423,7 +454,10 @@ function AddNewJob({ route, navigation }) {
                         <Text
                         
                         >
-                          Temporary
+                          {
+                            language == 'en' ? "Temporary" : "Temporal"
+                          }
+                          
                         </Text>
 
                       </View>
@@ -431,7 +465,9 @@ function AddNewJob({ route, navigation }) {
           </Menu>
             
             <TextInput
-              label="salary"
+              label={
+                language == 'en' ? "salary" : "salario"
+              }
               value={salary}
               activeUnderlineColor={COLORS.primary}
               onChangeText={(text) => {
@@ -444,7 +480,9 @@ function AddNewJob({ route, navigation }) {
               }}
             />
             <TextInput
-              label="description"
+              label={
+                language == 'en' ? "description" : "descripción"
+              }
               value={description}
               activeUnderlineColor={COLORS.primary}
               onChangeText={(text) => {
@@ -479,7 +517,8 @@ function AddNewJob({ route, navigation }) {
                   color:COLORS.white
                 }}
                 >{
-                  resume[0].name
+                  
+                  resume[0].name!=undefined ? resume[0].name : "Upload Resume"
                 }</Text>
               </TouchableOpacity>
             </View>
@@ -509,7 +548,9 @@ function AddNewJob({ route, navigation }) {
                     <Text
                       style={styles.btnText}
                     >
-                      Apply
+                      {
+                        language == 'en' ? "Apply" : "Aplicar"
+                      }
                     </Text>
                   </Button>
              

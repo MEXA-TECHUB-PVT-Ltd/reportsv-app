@@ -15,6 +15,7 @@ import {
   TextInput,
   FlatList,
   TouchableWithoutFeedback,
+  Linking,
 
 } from 'react-native';
 import {
@@ -49,17 +50,19 @@ import styles from './styles';
 import BrickList from 'react-native-masonry-brick-list';
 import image_url from '../../../consts/image_url';
 import { isConfiguredCheck } from 'react-native-reanimated/lib/reanimated2/core';
-
+import { useIsFocused } from '@react-navigation/native';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
 function Feed({ route, navigation }) {
+  const isFocused = useIsFocused();
   const [refreshing, setRefreshing] = React.useState(false);
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     getAllNews  ();
+    getuserAd ()
   }, []);
 
 
@@ -71,6 +74,7 @@ const [fab, setFab] = useState({ open: false });
   const [value, setValue] = useState('');
   const [categories, setCategories] = useState([]);
   const [news, setNews] = useState([]);
+  const [news1, setNews1] = useState([]);
   const [news_id, setNews_id] = useState([]);
   const [user_id, setUser_id] = useState('');
   const [email, setEmail] = useState('');
@@ -141,6 +145,38 @@ const [fab, setFab] = useState({ open: false });
           setNews([])
         } else {
           setNews(response)
+          setRefreshing(false)
+        }
+
+
+      })
+      .catch(error => {
+
+        alert('this is error' + error);
+      });
+
+  };
+  const getuserAd = async () => {
+    setloading(true)
+    var InsertAPIURL = base_url + '/news/getUserAd.php';
+    var headers = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    };
+
+    await fetch(InsertAPIURL, {
+      method: 'POST',
+      headers: headers,
+     
+    })
+      .then(response => response.json())
+      .then(response => {
+        setloading(false)
+        if (response == null) {
+          setNews1([])
+        } else {
+          console.log('response', response);
+          setNews1(response)
           setRefreshing(false)
         }
 
@@ -269,18 +305,37 @@ const [fab, setFab] = useState({ open: false });
     } catch (e) {
       alert('Failed to fetch the data from storage')
     }
+  }  
+     // langauge 
+  const [language, setLanguage] = useState(null);
+  const storeLanguage = async (value) => {
+    try {
+      await AsyncStorage.setItem('language', value)
+    } catch (e) {
+      // saving error
+    }
+  }
+  const getLanguage = async () => {
+    try {
+      const value = await AsyncStorage.getItem('language')
+      console.log(value)
+      setLanguage(value)
+    } catch(e) {
+      // error reading value
+    }
   }
   useEffect(() => {
+    getLanguage()
     getData()
     getAllCategories()
     getAllNews()
     getNewsRate()
-
+    getuserAd ()
 
     return () => {
       setNews([]); // This worked for me
     };
-  }, []);
+  }, [isFocused]);
 
   return (
 
@@ -313,13 +368,23 @@ const [fab, setFab] = useState({ open: false });
                   alignItems: 'center',
                 }}
               >
-                <Paragraph>Detecting Your Subscription ...</Paragraph>
+                <Paragraph>
+                  {
+                    language == 'en' ?
+                      'Detecting Your Subscription ...'
+                      :
+                      'Detección de su suscripción ...'
+                  }</Paragraph>
                 <Text
                   style={{
                     color: COLORS.red,
                     paddingVertical: 10,
                   }}
-                >Don't Close the window</Text>
+                >{
+                    language == 'en' ?
+                'Donot Close the window' :
+                'No cierre la ventana'
+                }</Text>
               </Dialog.Content>
 
             </>
@@ -337,7 +402,13 @@ const [fab, setFab] = useState({ open: false });
                   alignSelf: 'center',
                 }}
               >
-                <Paragraph>The Content is Locked</Paragraph>
+                <Paragraph>
+                  {
+                    language == 'en' ?
+                      'The Content is Locked': 
+                      'El contenido está bloqueado'
+                  }
+                  </Paragraph>
               </Dialog.Content>
               <Dialog.Actions
                 style={{
@@ -358,7 +429,13 @@ const [fab, setFab] = useState({ open: false });
                       author_name: author_name,
                     })
                     // console.log('news_id',news_id);
-                  }}>Pay to View</Button>
+                  }}>
+                    {
+                      language == 'en' ?
+                      'Pay to View' :
+                      'Pagar para ver'
+                    }
+                    </Button>
               </Dialog.Actions>
             </>
         }
@@ -388,19 +465,21 @@ const [fab, setFab] = useState({ open: false });
             },
             {
               icon: 'cash',
-              label: 'Sponsor',
+              label: language == 'en' ? 'Sponsor' : 'Patrocinadora',
               color: COLORS.primary,
               onPress: () =>  navigation.navigate('Sponser'),
             },
             {
               icon: 'chess-king',
-              label: 'Be The Owner',
+              label: language == 'en' ? 'Be The Owner' :
+                  'Ser la dueña',
               color: COLORS.primary,
               onPress: () => navigation.navigate('BeTheOwner'),
             },
             {
               icon: 'account',
-              label: 'Become An Author',
+              label: language == 'en' ? 'Become An Author' :
+                  'Convertirse en autor',
               color: COLORS.primary,
               onPress: () =>  navigation.navigate('BecomeanAuthor'),
             },
@@ -458,7 +537,12 @@ const [fab, setFab] = useState({ open: false });
                 fontWeight:'bold',
 
               }}
-              >Store</Text>
+              >{
+                language == 'en' ?
+                'Store' :
+                'Tienda'
+              }
+                </Text>
           </TouchableOpacity>
         </View>
 
@@ -480,8 +564,13 @@ const [fab, setFab] = useState({ open: false });
                 <Text style={[styles.renderText, {
                   backgroundColor: COLORS.white,
                   color: COLORS.dark,
+                  width: '100%',
                 }]}>
-                  All Category
+                  {
+                    language == 'en' ?
+                      'All Category' :
+                      'Todas las categorías'
+                  }
                 </Text>
               </TouchableOpacity> : null
 
@@ -540,12 +629,91 @@ const [fab, setFab] = useState({ open: false });
                   />
                 }
                 >
+                  {
+                    news1.map((item, index) => {
+                      return (
+                        <TouchableOpacity
+                        onPress={() => {
+                            Linking.openURL(item.data.banner_link);
+                        }}
+                          activeOpacity={0.8}
+                        style={{
+                          width: '94%',
+                          height: 200,
+                          backgroundColor:COLORS.primary,
+                          marginTop: 10,
+                          borderRadius: 5,
+                          overflow: 'hidden',
+                          elevation: 2,
+                          marginHorizontal: '3%',
+                          borderWidth: 1,
+                          borderColor: COLORS.light,
+                        }}
+                        >
+                          <ImageBackground
+                            source={{ uri:image_url+ item.data.image }}
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              justifyContent: 'flex-end',
+                            }}
+                            resizeMode="cover"
+                          >
+                           
+                            <LinearGradient 
+                            colors={['rgba(0,0,0,0.1)','rgba(0,0,0,0.5)','rgba(0,0,0,0.9)']}
+                            style={{
+                              width:'100%',
+                              height:'100%',
+                              justifyContent:'flex-end',
+                            }}
+                            >
+                               <Text
+                            style={{
+                              position:'absolute',
+                              top:0,
+                              left:0,
+                              color: COLORS.white,
+                              fontSize: 10,
+                              fontWeight: 'bold',
+                              borderBottomRightRadius: 5,
+                              paddingVertical: 5,
+                              paddingHorizontal: 5,
+                              backgroundColor:COLORS.primary,
+                            }}
+                            >
+                              Ad Banner 
+                            </Text>
+                              <Text
+                                style={{
+                                  color: COLORS.white,
+                                  fontSize: 20,
+                                  fontWeight: 'bold',
+                                  textAlign: 'center',
+                                  width: '100%',
+                                  paddingVertical: 5,
+                                  marginBottom: 5,
+                                }}
+                              >{item.data.title}</Text>
+                            </LinearGradient>
+
+                            </ImageBackground>
+                        </TouchableOpacity>
+                      )
+                    })
+                  }
                 <BrickList
+                style={{
+                  marginTop: -1110,
+                }}
+               
                   data={news}
                   listemptyComponent={<Text>Empty</Text>}
                   renderItem={(prop) => {
-
-                    return (<TouchableRipple key={prop.id} style={{
+                    
+                    return (
+                       
+                    <TouchableRipple key={prop.id} style={{
                       width: prop.span == 1 ? '92%' : '95%',
                       marginLeft: prop.span == 1 ? '3%' : '2%',
                       paddingVertical: '2%',
@@ -582,18 +750,39 @@ const [fab, setFab] = useState({ open: false });
                         style={[styles.imgBkg3, {
                           width: '100%',
                           height: '100%',
+
                           // marginHorizontal: 10,      
                         }]}>
 
                         <LinearGradient colors={['rgba(0,0,0,0)', 'rgba(0,0,0,.2)', 'rgba(0,0,0,.9)']}
-                          style={styles.linearGradient}>
-
+                          style={styles.linearGradient}> 
+                          <Text
+                            style={{
+                              alignSelf:'center',
+                              backgroundColor:
+                              prop.video_link == null || prop.video_link == '' ?
+                            null :
+                              COLORS.primary,
+                              marginBottom:15,
+                              padding:5,
+                              paddingHorizontal:7,
+                              borderRadius:5,
+                            }}
+                            >
+                          {
+                            prop.video_link == null || prop.video_link == '' ?
+                            null :
+                            
+                              <Icon name="play" size={15} color={COLORS.white} /> 
+                           
+                          }
+                        </Text>
                           <View
                             style={{
                               flexDirection: 'row',
                             }}
                           >
-
+                               
                             <View
                               style={[styles.imgBkgGradientViewLeft, {
                                 width: prop.span == 2 ? '85%' : '65%',
@@ -640,16 +829,40 @@ const [fab, setFab] = useState({ open: false });
 
 
                               <View
-                                style={styles.imgBkgGradientViewRightRow}
+                                style={[styles.imgBkgGradientViewRightRow,{
+                                  marginRight:-65,
+                                  marginBottom: 30,
+                                }]}
                               >
+                                <View
+                                style={{
+                                  flexDirection: 'row',
+                                }}
+                                >
+                                <Icon name="thumbs-up" size={20}
+                                  color={COLORS.white} />
                                 <Text
+                                  style={styles.imgBkgGradientViewRightRowTxt}
+                                >
+                                  {prop.total_like}
+                                </Text>
+                                </View>
+                                <View
+                                style={{
+                                  flexDirection: 'row',
+                                }}
+                                >
+                                   <Icon name="comments" size={20}
+                                  color={COLORS.white} />
+                                  <Text
                                   style={styles.imgBkgGradientViewRightRowTxt}
                                 >
                                   {prop.total_comment}
                                 </Text>
 
-                                <Icon name="comments" size={20}
-                                  color={COLORS.white} />
+                               
+                                </View>
+                                
                               </View>
                             </View>
 
@@ -658,8 +871,12 @@ const [fab, setFab] = useState({ open: false });
 
                         </LinearGradient>
                       </ImageBackground>
-                    </TouchableRipple>)
+                    </TouchableRipple>
+                    )
                   }}
+                 
+
+
                   columns={2}
                 />
                 </ScrollView>

@@ -91,7 +91,7 @@ const STYLES = StyleSheet.create({
     borderRadius: 30,
     width: '100%',
     borderRadius: 50,
-    height: 35,
+    
     color: 'white',
     marginBottom: '10%',
   },
@@ -162,9 +162,9 @@ const STYLES = StyleSheet.create({
     color: COLORS.white,
   },
   imgBkgGradientViewRightRow: {
-    flexDirection: 'row',
-    alignContent: 'center',
-    alignItems: 'center',
+    flexDirection: 'column',
+    alignContent: 'flex-end',
+    alignItems: 'flex-end',
   }
   ,
   imgBkgGradientViewRightRowTxt: {

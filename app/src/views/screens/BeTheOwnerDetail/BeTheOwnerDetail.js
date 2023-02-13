@@ -39,12 +39,14 @@ import image_url from '../../../consts/image_url';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from './styles';
 import { black } from 'react-native-paper/lib/typescript/styles/colors';
+import { useIsFocused } from '@react-navigation/native';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
 function BeTheOwnerDetail({ route, navigation }) {
   const { item, uniq_id } = route.params;
+  const isFocused = useIsFocused();
   const [user_id, setUser_id] = useState('');
   const [exsist, setExsist] = useState(false);
   const [btnText, setBtnText] = useState('Loading...');
@@ -88,7 +90,8 @@ function BeTheOwnerDetail({ route, navigation }) {
     if (activeText == '' || activeText == 0) {
       hideDialog()
       setSnackDetails({
-        text: 'Please Select Size of a Product',
+        text:
+        language == 'en' ? 'Please Select Size of a Product' :'Seleccione el tamaño de un producto',
         backgroundColor: 'red',
       });
       onToggleSnackBar();
@@ -97,7 +100,8 @@ function BeTheOwnerDetail({ route, navigation }) {
     if (activeColor == '' || activeColor == 0) {
      
       setSnackDetails({
-        text: 'Please Select Color of a Product',
+        text: 
+        language == 'en' ? 'Please Select Color of a Product' : 'Seleccione el color de un producto',
         backgroundColor: 'red',
       });
       hideDialog()
@@ -106,7 +110,8 @@ function BeTheOwnerDetail({ route, navigation }) {
     }
     if (quantity == '' || quantity == 0) {
       setSnackDetails({
-        text: 'Please enter quantity',
+        text: 
+        language == 'en' ? 'Please enter quantity' : 'Por favor ingrese la cantidad',
         backgroundColor: 'red',
       });
       onToggleSnackBar();
@@ -166,12 +171,45 @@ function BeTheOwnerDetail({ route, navigation }) {
     }
   }
 
-
+// langauge 
+const [language, setLanguage] = useState(null);
+const storeLanguage = async (value) => {
+  try {
+    await AsyncStorage.setItem('language', value)
+  } catch (e) {
+    // saving error
+  }
+}
+const getLanguage = async () => {
+  try {
+    const value = await AsyncStorage.getItem('language')
+    console.log(value)
+    setLanguage(value)
+  } catch(e) {
+    // error reading value
+  }
+}
 
   useEffect(() => {
     getData()
+    getLanguage()
+    return () => {
+      // cleanup
+      setBtnText('Add to Cart');  
+      setQuantity('');
+      setS(0);
+      setM(0);
+      setL(0);
+      setXl(0);
+      setXxl(0);
+      setActiveTextColor('Select Color');
+      setActiveTextSize('Select Size');
+      setActiveText();
+      setActiveColor();
+
+    }
     // getAllProducts()
-  }, []);
+  }, [isFocused]);
 
   return (
 
@@ -258,7 +296,9 @@ function BeTheOwnerDetail({ route, navigation }) {
                 padding: 10,
               }}
               >
-                <Text>Total Share</Text>
+                <Text>{
+                  language == 'en' ? 'Total Share' : 'Acciones totales'
+                  }</Text>
                 <Text>{item.total_share}</Text>
               </View>
               <Text
@@ -266,8 +306,9 @@ function BeTheOwnerDetail({ route, navigation }) {
                 fontSize: 16,
                 color:COLORS.primary
               }}
-              >
-                Share Available
+              >{
+                language == 'en' ? 'Share Available' : 'Acciones disponibles'
+              }
               </Text>
               <Paragraph
               style={{
@@ -309,7 +350,9 @@ function BeTheOwnerDetail({ route, navigation }) {
                       style={{
                         color:COLORS.light
                       }}
-                      >Sold</Text>
+                      >{
+                        language == 'en' ? 'Sold' : 'Vendido'
+                      }</Text>
                       </View>
                         :
                         <TouchableOpacity
@@ -337,7 +380,9 @@ function BeTheOwnerDetail({ route, navigation }) {
                       style={{
                         color:COLORS.white
                       }}
-                      >Buy</Text>
+                      >{
+                        language == 'en' ? 'Buy' : 'Comprar'
+                      }</Text>
                       </TouchableOpacity>
                       }
                       

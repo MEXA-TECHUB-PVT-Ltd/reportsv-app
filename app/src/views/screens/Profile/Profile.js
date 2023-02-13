@@ -14,7 +14,8 @@ import {
   ImageBackground,
   TextInput,
   FlatList,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+
 } from 'react-native';
 import {
   Text,
@@ -24,6 +25,9 @@ import {
   ActivityIndicator,
   Colors,
   TouchableRipple,
+  Dialog,
+  RadioButton,
+  Divider,
 
 } from 'react-native-paper';
 import COLORS from '../../../consts/colors';
@@ -57,26 +61,12 @@ function Profile({ navigation }) {
   const [userName, setuserName] = useState('');
   const [image, setImage] = useState('');
   const [userDetail, setUserDetail] = useState();
-  // flatlsit
-  const DATA = [
-    {
-      id: '1',
-      title: 'First Item',
-    },
-    {
-      id: '2',
-      title: 'Second Item',
-    },
-    {
-      id: '3',
-      title: 'Third Item',
-    },
-    {
-      id: '4',
-      title: 'Forth Item',
-    },
-  ];
+  const [visible, setVisible] = React.useState(false);
+  const [checked, setChecked] = React.useState('first');
 
+  const showDialog = () => setVisible(true);
+
+  const hideDialog = () => setVisible(false);
   // flatlsit end
     // get user data from async storage
     const getData = async () => {
@@ -93,9 +83,27 @@ function Profile({ navigation }) {
       }
     }
 
-
+// langauge 
+const [language, setLanguage] = useState(null);
+const storeLanguage = async (value) => {
+  try {
+    await AsyncStorage.setItem('language', value)
+  } catch (e) {
+    // saving error
+  }
+}
+const getLanguage = async () => {
+  try {
+    const value = await AsyncStorage.getItem('language')
+    console.log(value)
+    setLanguage(value)
+  } catch(e) {
+    // error reading value
+  }
+}
   useEffect(() => {
     getData()
+    getLanguage()
   }, [isFocused]);
   return (
 
@@ -111,21 +119,81 @@ function Profile({ navigation }) {
       <ScrollView
         contentContainerStyle={styles.mainView}
       >
+         <Dialog
+ 
+ style={{
+  zIndex: 9999
+ }}
+ visible={visible} onDismiss={hideDialog}>
+            <Dialog.Title>
+            {
+            language==='en' ? 'Choose Language' :
+            language==='es' ? 'Elija el idioma' : 'Choose Language'
+          }
+            </Dialog.Title>
+            <Dialog.Content>
+            <TouchableOpacity
+            style={{
+              padding: 10,
+              borderRadius: 10,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}
+            onPress={() => {
+              storeLanguage('en')
+              getLanguage()
+              hideDialog()
+            }}
+            >
+              <Text>English</Text>
+              {
+                language==='en' ? <Icon name="check" size={20} color={COLORS.primary} /> : null
+              }
+              
+            </TouchableOpacity>
+            <Divider style={{marginVertical: 5,height:1}} />
+            <TouchableOpacity
+            style={{
+              padding: 10,
+              borderRadius: 10,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}
+            onPress={() => {
+              storeLanguage('es')
+              getLanguage()
+              hideDialog()
+            }}
+            >
+              <Text>Spanish</Text>
+              {
+                language==='es' ? <Icon name="check" size={20} color={COLORS.primary} /> : null
+              }
+            </TouchableOpacity>
+            </Dialog.Content>
+
+          </Dialog>
         <ImageBackground source={
           require('../../../assets/bkg_img/profilebkg.png')
         }
           resizeMode="contain"
-          style={styles.imgBkg}>
+          style={[styles.imgBkg,{
+            zIndex:-9
+          }]}>
           <Text
             adjustsFontSizeToFit={true}
             style={styles.bkgImgText}
-          >PROFILE</Text>
+          >{
+            language==='en' ? 'PROFILE' : language==='es' ? 'PERFIL' : 'PROFILE'
+          }</Text>
         </ImageBackground>
         <View>
           {/* react naitve iamge */}
           <Image
             source={{uri:image==='' ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460__340.png' :  image_url + image}}
-            style={styles.profileImg}
+            style={[styles.profileImg,{
+              zIndex:-9
+            }]}
           />
           {/* react naitve iamge end */}
           <Text
@@ -135,12 +203,16 @@ function Profile({ navigation }) {
             alignSelf:'center',
             fontSize: 20,
             marginTop: '5%',
+            zIndex:-9
           }}
           >
             @{userName}
           </Text>
           <View
-            style={styles.profileInfo}>
+            style={[styles.profileInfo,{
+              zIndex:-9,
+              alignSelf:'center'
+            }]}>
             <TouchableOpacity
               style={styles.renderTouch}
               
@@ -153,8 +225,14 @@ function Profile({ navigation }) {
               <Text style={[styles.renderText, {
                 shadowColor: COLORS.primary,
                 backgroundColor: COLORS.primary,
+                width: width / 3,
+                textAlign: 'center',
+                
               }]}>
-                Edit Profile
+
+               {
+                  language==='en' ? 'Edit Profile' : language==='es' ? 'Editar Perfil' : 'Edit Profile'
+               }
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -170,8 +248,13 @@ function Profile({ navigation }) {
               <Text style={[styles.renderText, {
                 shadowColor: COLORS.secondary,
                 backgroundColor: COLORS.secondary,
+                width: width / 3,
+                textAlign: 'center',
+                height: 40,
               }]}>
-                Logout
+                {
+                  language==='en' ? 'Logout' : language==='es' ? 'Cerrar sesión' : 'Logout'
+                }
               </Text>
             </TouchableOpacity>
 
@@ -181,7 +264,7 @@ function Profile({ navigation }) {
         </View>
 
         <View
-          style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
+          style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10,zIndex:-9 }}>
           <TouchableOpacity
             style={{
               flexDirection: 'column',
@@ -210,7 +293,11 @@ function Profile({ navigation }) {
                 paddingTop: '12%',
                 color: COLORS.white,
               }}
-            >My Comments</Text>
+            >
+              {
+                language==='en' ? 'My Comments' : language==='es' ? 'Mis Comentarios' : 'My Comments'
+              }
+              </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{
@@ -237,13 +324,16 @@ function Profile({ navigation }) {
                 paddingTop: '12%',
                 color: COLORS.white,
               }}
-            >Privacy Policy</Text>
+            >{
+              language==='en' ? 'Privacy Policy' : language==='es' ? 'Política de privacidad' : 'Privacy Policy'
+            }</Text>
           </TouchableOpacity>
 
 
         </View>
         <View
-          style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10, top: -10 }}>
+          style={{ 
+            zIndex:-9,flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10, top: -10 }}>
           {/* <TouchableOpacity
             style={{
               flexDirection: 'column',
@@ -298,12 +388,31 @@ function Profile({ navigation }) {
                 paddingTop: '12%',
                 color: COLORS.white,
               }}
-            >Rate Us</Text>
+            >
+              {
+                language==='en' ? 'Rate Us' : language==='es' ? 'Califícanos' : 'Rate Us'
+              }
+            </Text>
           </TouchableOpacity>
-
-
-        </View>
-
+          </View>
+          <TouchableOpacity
+          style={{
+            zIndex:-9
+          }}
+          onPress={() => showDialog()}
+          >
+            <Text
+              style={{
+                // fontSize: 20,
+                paddingTop: '12%',
+                color: COLORS.white,
+              }}
+            >
+              {
+                language==='en' ? 'Change Language' : language==='es' ? 'Cambiar idioma' : 'Change Language'
+              }
+              </Text>
+          </TouchableOpacity>
 
       </ScrollView>
 

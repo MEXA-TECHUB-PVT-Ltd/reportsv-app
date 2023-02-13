@@ -39,7 +39,7 @@ import image_url from '../../../consts/image_url';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from './styles';
 import { black } from 'react-native-paper/lib/typescript/styles/colors';
-
+import { useIsFocused } from '@react-navigation/native';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
@@ -71,6 +71,7 @@ function ProductDetail({ route, navigation }) {
   const showDialog = () => setVisible1(true);
   const hideDialog = () => setVisible1(false);
   // menu 
+  const isFocused = useIsFocused();
   const [menuVisible, setMenuVisible] = useState(false);
   const [menuVisible2, setMenuVisible2] = useState(false);
   const [activeTextColor, setActiveTextColor] = useState('Select Color');
@@ -88,7 +89,8 @@ function ProductDetail({ route, navigation }) {
     if (activeText == '' || activeText == 0) {
       hideDialog()
       setSnackDetails({
-        text: 'Please Select Size of a Product',
+        text:
+         'Please Select Size of a Product',
         backgroundColor: 'red',
       });
       onToggleSnackBar();
@@ -199,13 +201,32 @@ function ProductDetail({ route, navigation }) {
       alert('Failed to fetch the data from storage')
     }
   }
-
+  const [language, setLanguage] = useState(null);
+  const storeLanguage = async (value) => {
+    try {
+      await AsyncStorage.setItem('language', value)
+    } catch (e) {
+      // saving error
+    }
+  }
+  const getLanguage = async () => {
+    try {
+      const value = await AsyncStorage.getItem('language')
+      console.log(value)
+      setLanguage(value)
+    } catch(e) {
+      // error reading value
+    }
+  }
 
 
   useEffect(() => {
     getData()
-    // getAllProducts()
-  }, []);
+    getLanguage()
+    return () => {
+      setloading(false);
+    }
+  }, [isFocused]);
 
   return (
 
@@ -238,7 +259,10 @@ function ProductDetail({ route, navigation }) {
             navigation.goBack()
           }}
           />
-          <Appbar.Content title="Product Detail"
+          <Appbar.Content title={
+            language == 'en' ? 'Product Detail' : 'Detalle del producto'
+          }
+          
           // subtitle="Purchase your favorite products"
           />
           <Appbar.Action icon="cart" onPress={() => {
@@ -423,7 +447,9 @@ function ProductDetail({ route, navigation }) {
                           color: COLORS.light,
                           fontSize: 13
                         }}
-                      >No Colors for This Product</Text>
+                      >{
+                          language == 'en' ? 'No Colors for This Product' : 'No hay colores para este producto'
+                      }</Text>
                     } />
 
                 )
@@ -515,7 +541,9 @@ function ProductDetail({ route, navigation }) {
                   addToCart()
                 }
                 // hideDialog
-              }>Add to Cart</Button>
+              }>{
+                language == 'en' ? 'Add to Cart' : 'Agregar al carrito'
+              }</Button>
           </Dialog.Actions>
         </Dialog>
         <ScrollView
@@ -563,7 +591,10 @@ function ProductDetail({ route, navigation }) {
                   fontSize: 16,
                   marginBottom: 10,
                 }}
-              >Colors Available :</Headline>
+              >{
+                  language == 'en' ? 'Colors Available :' 
+                  : 'Colores disponibles :'
+              }</Headline>
               <FlatList
                 style={{
                   paddingBottom: 10
@@ -581,7 +612,9 @@ function ProductDetail({ route, navigation }) {
                         color: COLORS.light
 
                       }}
-                    >No Colors for This Product</Text>
+                    >{
+                        language == 'en' ? 'No Colors for This Product' : 'No hay colores para este producto'
+                    }</Text>
                   )
                 }}
                 data={colors}
@@ -614,7 +647,10 @@ function ProductDetail({ route, navigation }) {
                   style={{
                     fontSize: 16
                   }}
-                >Sizes Available :</Headline>
+                >{
+                    language == 'en' ? 'Sizes Available :'
+                    : 'Tamaños disponibles :'
+                }</Headline>
                 <View
                   style={{
                     flexDirection: 'row',
@@ -741,7 +777,9 @@ function ProductDetail({ route, navigation }) {
                         color: COLORS.primary,
                       }}
                     >
-                      Go to Cart
+                      {
+                        language == 'en' ? 'Go to Cart' : 'Ir al carrito'
+                      }
                     </Text>
                   </Button>
                 </> :

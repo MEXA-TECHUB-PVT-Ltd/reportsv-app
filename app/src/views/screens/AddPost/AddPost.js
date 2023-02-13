@@ -45,14 +45,14 @@ import DatePicker from 'react-native-date-picker'
 import RBSheet from "react-native-raw-bottom-sheet";
 import ImagePicker from 'react-native-image-crop-picker';
 import RNFetchBlob from 'rn-fetch-blob';
-
+import { useIsFocused } from '@react-navigation/native';
 
 import styles from './styles';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
 function AddPost({ navigation }) {
-
+  const isFocused = useIsFocused();
   const [value, setValue] = useState('');
   const [user_id, setUser_id] = useState('');
   const [email, setEmail] = useState('');
@@ -65,8 +65,10 @@ function AddPost({ navigation }) {
 
   // date picker
   const [date, setDate] = useState(new Date())
-  const [startDate, setStartDate] = useState('Select Start Date');
-  const [endDate, setEndDate] = useState('Select End Date');
+  const [startDate, setStartDate] = useState(
+    language == 'en' ? 'Select Start Date' : 'Seleccionar fecha de inicio');
+  const [endDate, setEndDate] = useState(
+    language == 'en' ? 'Select End Date' : 'Seleccionar fecha final');
   const [startDateSting, setStartDateSting] = useState();
   const [endDateSting, setEndDateSting] = useState();
   const [current, setCurrent] = useState('');
@@ -137,7 +139,8 @@ const postanAd = async () => {
 
 if(imageDetail == null){ 
   setSnackDetails({
-    text: 'Please select an image',
+    text: language == 'en' ? 'Please select an image' :
+    'Por favor seleccione una imagen',
     backgroundColor: 'red',
   });
   onToggleSnackBar();
@@ -145,7 +148,7 @@ if(imageDetail == null){
 } 
 if(title.length == 0){
   setSnackDetails({
-    text: 'Please enter title',
+    text: language == 'en' ? 'Please enter title' : 'Por favor ingrese el título',
     backgroundColor: 'red',
   });
   onToggleSnackBar();
@@ -153,23 +156,26 @@ if(title.length == 0){
 }
 if(ad_detail.length == 0){
   setSnackDetails({
-    text: 'Please enter ad detail',
+    text: language == 'en' ? 'Please enter ad detail' : 
+    'Por favor ingrese el detalle del anuncio',
     backgroundColor: 'red',
   });
   onToggleSnackBar();
   return;
 }
-if(startDate == 'Select Start Date'){
+if(startDate == 'Select Start Date' || startDate == 'Seleccionar fecha de inicio'){
   setSnackDetails({
-    text: 'Please select start date',
+    text: language == 'en' ? 'Please select start date' :
+    'Por favor seleccione la fecha de inicio',
     backgroundColor: 'red',
   });
   onToggleSnackBar();
   return;
 }
-if(endDate == 'Select End Date'){
+if(endDate == 'Select End Date' || endDate == 'Seleccionar fecha final'){
   setSnackDetails({
-    text: 'Please select end date',
+    text: language == 'en' ? 'Please select end date' :
+    'Por favor seleccione la fecha final',
     backgroundColor: 'red',
   });
   onToggleSnackBar();
@@ -178,7 +184,9 @@ if(endDate == 'Select End Date'){
 
 if(banner_link.length == 0){
   setSnackDetails({
-    text: 'Please enter Banner Link',
+    text:
+    language == 'en' ? 'Please enter Banner Link' :
+        'Ingrese el enlace del banner',
     backgroundColor: 'red',
   });
   onToggleSnackBar();
@@ -216,8 +224,8 @@ if(banner_link.length == 0){
         setBanner_link('');
         setAd_detail('');
         setTotal_price(perDayValue);
-        setStartDate('Select Start Date');
-        setEndDate('Select End Date');
+        setStartDate(language == 'en' ? 'Select Start Date' : 'Seleccionar fecha de inicio');
+        setEndDate(language == 'en' ? 'Select End Date' : 'Seleccionar fecha final')
         setImage({
           uri: 'https://reactnative.dev/img/tiny_logo.png'
         });
@@ -287,11 +295,29 @@ function onMessage(data) {
       alert('Failed to fetch the data from storage')
     }
   }
+    // langauge 
+const [language, setLanguage] = useState(null);
+const storeLanguage = async (value) => {
+  try {
+    await AsyncStorage.setItem('language', value)
+  } catch (e) {
+    // saving error
+  }
+}
+const getLanguage = async () => {
+  try {
+    const value = await AsyncStorage.getItem('language')
+    console.log(value)
+    setLanguage(value)
+  } catch(e) {
+    // error reading value
+  }
+}
   useEffect(() => {
-
+    getLanguage()
     getData()
     getPerDayValue()
-  }, []);
+  }, [isFocused]);
   return (
 
 
@@ -337,7 +363,9 @@ function onMessage(data) {
           <Text
             adjustsFontSizeToFit={true}
             style={styles.bkgImgText}
-          >POST YOUR Ad</Text>
+          >{
+            language == 'en' ? 'Post Your Ad' : 'PUBLICA TU ANUNCIO'
+          }</Text>
         </ImageBackground>
         <TouchableOpacity
           style={{
@@ -358,7 +386,11 @@ function onMessage(data) {
         >
           <Icon name="upload" size={20}
             color={COLORS.light} />
-          <Text style={styles.uploadText}>Upload Image</Text>
+          <Text style={styles.uploadText}>
+            {
+              language == 'en' ? 'Upload Image' : 'Subir Imagen'
+            }
+            </Text>
         </TouchableOpacity>
         <ImageBackground
          
@@ -399,11 +431,15 @@ function onMessage(data) {
             </TouchableOpacity>
           </View>
         </ImageBackground>
-        <Text style={styles.uploadText}>App Banner (1024px x 500px)</Text>
+        <Text style={styles.uploadText}>{
+          language == 'en' ? 'Add Banner' : 'Añadir Banner'
+        } (1024px x 500px)</Text>
         <TextInput
           style={styles.txtInpt}
           color={'white'}
-          placeholder="AD Title"
+          placeholder={
+            language == 'en' ? 'AD Title' : 'Título del Anuncio'
+          }
           placeholderTextColor={COLORS.white}
           underlineColor='white'
           activeUnderlineColor='white'
@@ -414,7 +450,9 @@ function onMessage(data) {
         <TextInput
           style={styles.txtInpt}
           color={'white'}
-          placeholder="App Banner Link"
+          placeholder={
+            language == 'en' ? 'App Banner Link' : 'Enlace de Banner de la Aplicación'
+          }
           placeholderTextColor={COLORS.white}
           underlineColor='white'
           activeUnderlineColor='white'
@@ -477,7 +515,9 @@ function onMessage(data) {
         <TextInput
           style={styles.txtInpt}
           color={'white'}
-          placeholder="AD Details"
+          placeholder={
+            language == 'en' ? 'AD Details' : 'Detalles del Anuncio'
+          }
           placeholderTextColor={COLORS.white}
           underlineColor='white'
           activeUnderlineColor='white'
@@ -488,12 +528,15 @@ function onMessage(data) {
         />
         <Text
           style={styles.perDay}
-        >{perDayValue}$ per day</Text>
+        >{perDayValue}
+        {
+          language == 'en' ? ' $ per day' : ' $ por día'
+        }</Text>
         <Text
           style={[styles.perDay,{
             paddingBottom:'5%'
           }]}
-        >{total_price}$ Sub Total</Text>
+        >{total_price} $ Sub Total</Text>
 
         <Button
           mode='contained'
@@ -508,7 +551,9 @@ function onMessage(data) {
 
           <Text
             style={styles.btnText}
-          >Continue
+          >{
+            language == 'en' ? 'Continue' : 'Continuar'
+          }
           </Text>
         </Button>
 
@@ -613,7 +658,9 @@ function onMessage(data) {
             <Icon name="camera" size={24} color={COLORS.white} />
             <Text
               style={styles.uploadText2}
-            >Upload From Camera</Text>
+            >{
+                language == 'en' ? 'Upload From Camera' : 'Subir desde la cámara'
+            }</Text>
           </TouchableOpacity>
           <View style={styles.hr}>
           </View>
@@ -627,7 +674,9 @@ function onMessage(data) {
             <Icon name="image" size={24} color={COLORS.white} />
             <Text
               style={styles.uploadText2}
-            >Upload From Gallery</Text>
+            >{
+                language == 'en' ? 'Upload From Gallery' : 'Subir desde la galería'
+            }</Text>
           </TouchableOpacity>
 
         </View>

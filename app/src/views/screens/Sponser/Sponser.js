@@ -193,7 +193,9 @@ function Sponser({ route, navigation }) {
             color: COLORS.grey,
             fontWeight: '900',
           }}
-          >Total Space</Text>
+          >{
+            language == 'en' ? 'Total Space' : 'Espacio total'
+          }</Text>
           <Text
           style={{
             fontSize: 12,
@@ -221,7 +223,9 @@ function Sponser({ route, navigation }) {
             color: COLORS.grey,
             fontWeight: '900',
           }}
-          >Space Sold</Text>
+          >{
+            language == 'en' ? 'Space Sold' : 'Espacio vendido'
+          }</Text>
           <Text
           style={{
             fontSize: 12,
@@ -235,9 +239,26 @@ function Sponser({ route, navigation }) {
       </Card>
     </TouchableOpacity>
   );
-
+// langauge 
+const [language, setLanguage] = useState(null);
+const storeLanguage = async (value) => {
+  try {
+    await AsyncStorage.setItem('language', value)
+  } catch (e) {
+    // saving error
+  }
+}
+const getLanguage = async () => {
+  try {
+    const value = await AsyncStorage.getItem('language')
+    console.log(value)
+    setLanguage(value)
+  } catch(e) {
+    // error reading value
+  }
+}
   useEffect(() => {
-
+    getLanguage()
     getData()
     getAllProducts()
     return () => { 
@@ -275,8 +296,13 @@ function Sponser({ route, navigation }) {
           navigation.goBack()
         }}
         />
-        <Appbar.Content title="Sponsers"
-          subtitle="Get the best deals"
+        <Appbar.Content title={
+          language == 'en' ? 'Sponsers' : 'Patrocinadores'
+        }
+        
+          subtitle={
+            language == 'en' ? 'Get the best deals' : 'Obtenga las mejores ofertas'
+          }
         />
         
         <Appbar.Action icon="history" onPress={() => {

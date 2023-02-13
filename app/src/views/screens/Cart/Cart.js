@@ -53,12 +53,13 @@ import BrickList from 'react-native-masonry-brick-list';
 import styles from './styles';
 import { WebView } from 'react-native-webview';
 import { color } from 'react-native-reanimated';
-
+import { useIsFocused } from '@react-navigation/native';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
 function Cart({ route, navigation }) {
   const {uniq_id}=route.params;
+  const isFocused = useIsFocused();
   const refRBSheetTags = useRef();
   const [user_id, setUser_id] = useState('');
   const [email, setEmail] = useState('');
@@ -279,14 +280,31 @@ function Cart({ route, navigation }) {
   </>
   );
 
+  const [language, setLanguage] = useState(null);
+  const storeLanguage = async (value) => {
+    try {
+      await AsyncStorage.setItem('language', value)
+    } catch (e) {
+      // saving error
+    }
+  }
+  const getLanguage = async () => {
+    try {
+      const value = await AsyncStorage.getItem('language')
+      console.log(value)
+      setLanguage(value)
+    } catch(e) {
+      // error reading value
+    }
+  }
   useEffect(() => {
-
+    getLanguage()
     getData()
     getAllItemsinCart()
     return () => {
       setData({}); // This worked for me
     };
-  }, []);
+  }, [isFocused]);
   return (
 
 
@@ -320,7 +338,9 @@ function Cart({ route, navigation }) {
           navigation.navigate('Products')
         }}
         />
-        <Appbar.Content title="Cart"
+        <Appbar.Content title={
+          language=='en' ? 'Cart' : 'Carro'
+        }
         subtitle={'Order # '+uniq_id}
           
         />
@@ -369,7 +389,9 @@ function Cart({ route, navigation }) {
             }}
             >
              <TextInput 
-              label="Your Name"
+              label={
+                language=='en' ? 'Your Name' : 'Tu nombre'
+              }
               onChangeText={(text)=>setName(text)}
               mode="outlined"
               activeOutlineColor={COLORS.primary}
@@ -378,7 +400,9 @@ function Cart({ route, navigation }) {
               }}
               />
              <TextInput 
-              label="Shipping Address"
+              label={
+                language=='en' ? 'Shipping Address' : 'Dirección de envío'
+              }
               onChangeText={(text)=>setShipping_address(text)}
               mode="outlined"
               multiline={true}
@@ -414,7 +438,9 @@ function Cart({ route, navigation }) {
           <Text
             style={styles.btnText}
           >
-          Checkout
+            {
+              language=='en' ? 'Checkout' : 'Revisa'
+            }
           </Text>
         </Button>
             </View>
@@ -435,7 +461,9 @@ function Cart({ route, navigation }) {
                 fontSize:20,
                 marginTop:width/1.2
               }}
-              >No Items in Cart</Text>
+              >{
+                language=='en' ? 'No Items in Cart' : 'No hay artículos en el carrito'
+              }</Text>
             </View>
           }
         />

@@ -149,8 +149,18 @@ function Agencia({ route, navigation }) {
     description={()=>{
       return(
         <View>
-        <Text>Job Type : {item.job_type}</Text>
-        <Text>Salary : {item.salary}</Text>
+        <Text>
+          {
+            language=='en'?
+            'Job Type ':'El tipo de trabajo'
+            
+          }
+           : {item.job_type}</Text>
+        <Text>
+          {
+            language=='en'?
+            'Salary':'Salario'
+          } : {item.salary}</Text>
       </View>
       )
     }}
@@ -183,13 +193,32 @@ style={{
       alert('Failed to fetch the data from storage')
     }
   }
+     // langauge 
+     const [language, setLanguage] = useState(null);
+     const storeLanguage = async (value) => {
+       try {
+         await AsyncStorage.setItem('language', value)
+       } catch (e) {
+         // saving error
+       }
+     }
+     const getLanguage = async () => {
+       try {
+         const value = await AsyncStorage.getItem('language')
+         console.log(value)
+         setLanguage(value)
+       } catch(e) {
+         // error reading value
+       }
+     }
   useEffect(() => {
-
-   
+    getLanguage()
     getAllOrderofUser()
     getData()
     return () => {
-      setData({}); // This worked for me
+      // cleanup
+      setUserId('')
+
       
     };
   }, [isFocused]);
@@ -282,7 +311,10 @@ style={{
               style={{
                 alignSelf:'center'
               }}
-              >No Order Yet</Text>
+              >{
+                language=='en' ? 'No Order Yet' : 'Sin pedido todavía'
+              }
+               </Text>
           </View>)
           }}
           />

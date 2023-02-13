@@ -53,13 +53,13 @@ import BrickList from 'react-native-masonry-brick-list';
 import styles from './styles';
 import { WebView } from 'react-native-webview';
 import { color } from 'react-native-reanimated';
-
+import { useIsFocused } from '@react-navigation/native';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
 function Products({ route, navigation }) {
   const [refreshing, setRefreshing] = React.useState(false);
-
+const isFocused = useIsFocused();
   const onRefresh = React.useCallback(() => {
     getAllProducts  ();
   }, []);
@@ -206,12 +206,33 @@ function Products({ route, navigation }) {
       </Card>
     </TouchableOpacity>
   );
-
+// langauge 
+const [language, setLanguage] = useState(null);
+const storeLanguage = async (value) => {
+  try {
+    await AsyncStorage.setItem('language', value)
+  } catch (e) {
+    // saving error
+  }
+}
+const getLanguage = async () => {
+  try {
+    const value = await AsyncStorage.getItem('language')
+    console.log(value)
+    setLanguage(value)
+  } catch(e) {
+    // error reading value
+  }
+}
   useEffect(() => {
-
+    getLanguage()
     getData()
     getAllProducts()
-  }, []);
+
+    return () => {
+      setRefreshing(false);
+    };
+  }, [isFocused]);
   return (
 
 
@@ -243,8 +264,12 @@ function Products({ route, navigation }) {
           navigation.goBack()
         }}
         />
-        <Appbar.Content title="Store"
-          subtitle="Purchase your favorite products"
+        <Appbar.Content title={
+          language == 'en' ? 'Store' : 'Tienda'
+        }
+          subtitle={
+            language == 'en' ? 'Purchase your favorite products' : 'Compra tus productos favoritos'
+          }
         />
         <Appbar.Action icon="history" onPress={() => {
           navigation.navigate('OrderHistory',{

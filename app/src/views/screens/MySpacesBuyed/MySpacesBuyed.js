@@ -54,12 +54,13 @@ import BrickList from 'react-native-masonry-brick-list';
 import styles from './styles';
 import { WebView } from 'react-native-webview';
 import { color } from 'react-native-reanimated';
-
+import { useIsFocused } from '@react-navigation/native';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
 function MySpacesBuyed({ route, navigation }) {
   const {user_id}=route.params;
+  const isFocused = useIsFocused();
   const refRBSheetTags = useRef();
   const [email, setEmail] = useState('');
   const [total, setTotal] = useState('');
@@ -161,22 +162,45 @@ function MySpacesBuyed({ route, navigation }) {
     
       </View>
     }
-    description={'Spaces Buyed : '+item.space_buyed+' / '+item.total_space}
+    description={
+      language=='en'?
+      'Spaces Buyed :'+item.space_buyed+' / '+item.total_space 
+      :
+      'Espacios Comprados :'+item.space_buyed+' / '+item.total_space
+      }
    
   />
   <Divider />
   </TouchableOpacity>
   );
 
+  // langauge 
+const [language, setLanguage] = useState(null);
+const storeLanguage = async (value) => {
+  try {
+    await AsyncStorage.setItem('language', value)
+  } catch (e) {
+    // saving error
+  }
+}
+const getLanguage = async () => {
+  try {
+    const value = await AsyncStorage.getItem('language')
+    console.log(value)
+    setLanguage(value)
+  } catch(e) {
+    // error reading value
+  }
+}
   useEffect(() => {
-
+    getLanguage();
    
     getAllOrderofUser()
     return () => {
       setData({}); // This worked for me
       
     };
-  }, []);
+  }, [isFocused]);
   return (
 
 
@@ -210,7 +234,9 @@ function MySpacesBuyed({ route, navigation }) {
           navigation.goBack();
         }}
         />
-        <Appbar.Content title="My Orders"/>
+        <Appbar.Content title={
+          language == 'en' ? 'My Orders' : 'Mis ordenes'
+        }/>
        
       </Appbar.Header>
       {
@@ -244,7 +270,9 @@ function MySpacesBuyed({ route, navigation }) {
               style={{
                 alignSelf:'center'
               }}
-              >No Order Yet</Text>
+              >{
+                language == 'en' ? 'No Order Yet' : 'Sin pedido todavía'
+              }</Text>
           </View>)
           }}
           />

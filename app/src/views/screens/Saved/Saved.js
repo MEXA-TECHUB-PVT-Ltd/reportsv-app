@@ -137,8 +137,26 @@ const getData = async () => {
     alert('Failed to fetch the data from storage')
   }
 }
+// langauge 
+const [language, setLanguage] = useState(null);
+const storeLanguage = async (value) => {
+  try {
+    await AsyncStorage.setItem('language', value)
+  } catch (e) {
+    // saving error
+  }
+}
+const getLanguage = async () => {
+  try {
+    const value = await AsyncStorage.getItem('language')
+    console.log(value)
+    setLanguage(value)
+  } catch(e) {
+    // error reading value
+  }
+}
 useEffect(() => {
-
+  getLanguage()
   getData()
 }, [isFocused]);
   return (
@@ -165,7 +183,12 @@ useEffect(() => {
            <Text
           adjustsFontSizeToFit={true}
           style={styles.bkgImgText}
-        >SAVED</Text> 
+        >
+        {
+          language==='en'?
+          'SAVED' : 'GUARDADO'
+        }
+        </Text> 
         </ImageBackground>
         {
           news==='' ?
@@ -182,14 +205,16 @@ useEffect(() => {
           > 
           <Text
           style={{
-            color:COLORS.white,
+            color:COLORS.light,
+            width:width*0.6,
+            textAlign:'center',
           }}
-          >You Havn't Saved any News</Text>
-          <Text
-          style={{
-            color:COLORS.white,
-          }}
-          >GO to Home to See The News</Text>
+          >
+            {
+          language==='en'?
+          'You Havnot Saved any News Go to Home to See The News' : 'No has guardado ninguna noticia ve al inicio para ver las noticias'
+        }
+            </Text>
           </View>
           :
            <ScrollView
@@ -214,9 +239,14 @@ useEffect(() => {
                        height: '100%',
                      }}
                        onPress={() => {
-                         navigation.navigate('FeedDetails', {
-                           news_id: prop.id,
-                         })
+                        //  navigation.navigate('FeedDetails', {
+                        //    news_id: prop.id,
+                        //  })
+                        navigation.navigate('webDetail', {
+                          news_id: prop.id,
+                          userid: user_id,
+                          title: prop.title,
+                        })
    
                        }}
                      >

@@ -174,8 +174,9 @@ function MyApplicants({ route, navigation }) {
         fontWeight: 'bold',
         color: COLORS.primary,
       }}
-      >
-        User : {item.name}
+      >{
+        language=='en'?'User':'Usuaria'
+      } : {item.name}
       </Text>
      
     
@@ -184,9 +185,19 @@ function MyApplicants({ route, navigation }) {
     description={()=>{
       return(
         <View>
-        <Text>Contact : {item.contact}</Text>
-        <Text>Applied at : {item.comment}</Text>
-        <Text>Comments : {item.comment}</Text>
+        <Text>{
+          language=='en'?'Contact':'Contacto'
+          } : {item.contact}</Text>
+        <Text>
+          {
+            language=='en'?'Applied at':'Aplicado en'
+          } : {item.comment}</Text>
+        <Text>
+          {
+            language=='en'?'Comments':'Comentarios'
+
+          }
+           : {item.comment}</Text>
       </View>
       )
     }}
@@ -200,9 +211,26 @@ function MyApplicants({ route, navigation }) {
   />
   </TouchableOpacity>
   );
-  
+   // langauge 
+const [language, setLanguage] = useState(null);
+const storeLanguage = async (value) => {
+  try {
+    await AsyncStorage.setItem('language', value)
+  } catch (e) {
+    // saving error
+  }
+}
+const getLanguage = async () => {
+  try {
+    const value = await AsyncStorage.getItem('language')
+    console.log(value)
+    setLanguage(value)
+  } catch(e) {
+    // error reading value
+  }
+}
   useEffect(() => {
-
+    getLanguage()
    
     getAllOrderofUser()
     // getData()
@@ -282,7 +310,9 @@ function MyApplicants({ route, navigation }) {
               style={{
                 alignSelf:'center'
               }}
-              >No Applications Yet</Text>
+              >{
+                language=='en' ? 'No Applications Yet' : 'Aún no hay aplicaciones'
+              }</Text>
           </View>)
           }}
           />

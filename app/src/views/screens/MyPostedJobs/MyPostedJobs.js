@@ -192,7 +192,13 @@ function MyPostedJobs({ route, navigation }) {
         style={{
           backgroundColor: COLORS.success,
         }}
-        >See Applicants
+        >
+          {
+            language=='en'?
+            'See Applicants'
+            :
+            'Ver Solicitantes'
+          }
           </Badge>
       </TouchableRipple>
     
@@ -201,8 +207,22 @@ function MyPostedJobs({ route, navigation }) {
     description={()=>{
       return(
         <View>
-        <Text>Job Type : {item.job_type}</Text>
-        <Text>Salary : {item.salary}</Text>
+        <Text>
+          {
+            language=='en'?
+            'Job Type : '
+            :
+            'Tipo de trabajo : '
+          }
+          {item.job_type}</Text>
+        <Text>
+          {
+            language=='en'?
+            'Salary : '
+            :
+            'Salario : '
+          }
+            {item.salary}</Text>
       </View>
       )
     }}
@@ -234,9 +254,27 @@ icon="delete" />
   </TouchableOpacity>
   );
   
+  // langauge 
+const [language, setLanguage] = useState(null);
+const storeLanguage = async (value) => {
+  try {
+    await AsyncStorage.setItem('language', value)
+  } catch (e) {
+    // saving error
+  }
+}
+const getLanguage = async () => {
+  try {
+    const value = await AsyncStorage.getItem('language')
+    console.log(value)
+    setLanguage(value)
+  } catch(e) {
+    // error reading value
+  }
+}
   useEffect(() => {
 
-   
+    getLanguage()
     getAllOrderofUser()
     // getData()
     return () => {
@@ -277,7 +315,9 @@ icon="delete" />
           navigation.goBack();
         }}
         />
-        <Appbar.Content title="My Posted Jobs"/>
+        <Appbar.Content title={
+          language=='en' ? "My Posted Jobs" : "Mis trabajos publicados"
+        }/>
         
        
       </Appbar.Header>
@@ -312,7 +352,10 @@ icon="delete" />
               style={{
                 alignSelf:'center'
               }}
-              >No Order Yet</Text>
+              >{
+                language=='en' ? "No Order Yet" : "Sin pedido todavía"
+              }
+               </Text>
           </View>)
           }}
           />

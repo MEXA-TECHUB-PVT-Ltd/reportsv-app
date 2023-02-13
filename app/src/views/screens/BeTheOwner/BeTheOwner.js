@@ -184,7 +184,10 @@ function BeTheOwner({ route, navigation }) {
             color: COLORS.grey,
             fontWeight: '900',
           }}
-          >Total Share</Text>
+          >{
+            language == 'en' ? 'Total Share' : 'participación total'
+          }
+            </Text>
           <Text
           style={{
             fontSize: 12,
@@ -198,9 +201,26 @@ function BeTheOwner({ route, navigation }) {
       </Card>
     </TouchableOpacity>
   );
-
+// langauge 
+const [language, setLanguage] = useState(null);
+const storeLanguage = async (value) => {
+  try {
+    await AsyncStorage.setItem('language', value)
+  } catch (e) {
+    // saving error
+  }
+}
+const getLanguage = async () => {
+  try {
+    const value = await AsyncStorage.getItem('language')
+    console.log(value)
+    setLanguage(value)
+  } catch(e) {
+    // error reading value
+  }
+}
   useEffect(() => {
-
+    getLanguage()
     getData()
     getAllProducts()
     return () => { 
@@ -238,8 +258,12 @@ function BeTheOwner({ route, navigation }) {
           navigation.goBack()
         }}
         />
-        <Appbar.Content title="Be the Owner"
-          subtitle="Sponser the best Team"
+        <Appbar.Content title={
+          language == 'english' ? 'Be the Owner' : 'Ser el dueño'
+        }
+          subtitle={
+            language == 'english' ? 'Sponser the best Team' : 'Patrocina el mejor equipo'
+          }
         />
         
         <Appbar.Action icon="history" onPress={() => {
