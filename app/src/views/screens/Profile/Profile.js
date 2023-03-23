@@ -15,6 +15,7 @@ import {
   TextInput,
   FlatList,
   TouchableWithoutFeedback,
+  Linking,
 
 } from 'react-native';
 import {
@@ -374,6 +375,9 @@ const getLanguage = async () => {
               padding: '4%',
               borderWidth: 1,
               borderColor: COLORS.light,
+            }}
+            onPress={() => {
+              Linking.openURL('https://play.google.com/store/apps/details?id=com.reportsv')
             }}
           >
             <Image source={require('../../../assets/star.png')}

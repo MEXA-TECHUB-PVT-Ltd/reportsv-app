@@ -59,7 +59,7 @@ const STYLES = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     alignContent: 'flex-start',
-    marginBottom: 10,
+    marginBottom: 20,
     paddingHorizontal: '2%',
 
   },
@@ -77,7 +77,7 @@ const STYLES = StyleSheet.create({
   renderTouch: {
     paddingHorizontal: '4%',
     justifyContent: 'center',
-    width: width/3.5,
+    width: width/4,
     alignContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
@@ -89,11 +89,11 @@ const STYLES = StyleSheet.create({
     paddingHorizontal: '5%',
     paddingVertical: '8%',
     borderRadius: 30,
-    width: '100%',
+    
     borderRadius: 50,
     
     color: 'white',
-    marginBottom: '10%',
+    
   },
   shadow: {
 

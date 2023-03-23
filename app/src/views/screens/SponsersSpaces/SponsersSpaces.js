@@ -326,8 +326,14 @@ function SponsersSpaces({ route, navigation }) {
                     disabled={loading}
                     contentStyle={styles.btnContent}
                     onPress={() => {
-                      // postanAd()
-                      // showDialog()
+                     if (quantity == '' || quantity == 0 ){
+                        setSnackDetails({
+                          text: 'Please enter No of Space to buy',
+                          backgroundColor: 'red',
+                        });
+                        onToggleSnackBar();
+                        return;
+                     } else {
                       var x = item.total_space-item.space_sold
                       if(quantity>x ){
                         setSnackDetails({
@@ -347,6 +353,7 @@ function SponsersSpaces({ route, navigation }) {
                          
                         })
                       }
+                     }
                       
                     }}
                   >

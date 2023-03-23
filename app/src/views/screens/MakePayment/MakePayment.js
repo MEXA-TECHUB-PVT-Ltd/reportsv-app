@@ -128,7 +128,6 @@ function MakePayment({ route, navigation }) {
             body: JSON.stringify({
               transiction_id: paymentIntent.id,
               uniq_id: uniq_id,
-  
             }),
           })
             .then(response => response.json())

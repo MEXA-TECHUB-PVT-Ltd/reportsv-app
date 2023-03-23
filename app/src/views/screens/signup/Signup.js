@@ -125,9 +125,9 @@ function Signup({ navigation }) {
             onToggleSnackBar()
             storeData(response[0])
             getData()
-            setTimeout(() => {
-              navigation.navigate('Login')
-            }, 2000);
+            // setTimeout(() => {
+            //   navigation.navigate('Login')
+            // }, 2000);
           }
         })
         .catch(error => {

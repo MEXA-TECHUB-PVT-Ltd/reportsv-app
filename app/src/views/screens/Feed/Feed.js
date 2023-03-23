@@ -335,7 +335,7 @@ const [fab, setFab] = useState({ open: false });
     return () => {
       setNews([]); // This worked for me
     };
-  }, [isFocused]);
+  }, []);
 
   return (
 

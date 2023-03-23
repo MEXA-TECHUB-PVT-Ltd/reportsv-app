@@ -37,6 +37,7 @@ import Forgetpass from './app/src/views/screens/Forgetpass/Forgetpass';
 import VerifyCode from './app/src/views/screens/VerifyCode/VerifyCode';
 import NewPass from './app/src/views/screens/NewPass/NewPass';
 import Feed from './app/src/views/screens/Feed/Feed';
+import FeedNew from './app/src/views/screens/Feed/FeedNew';
 import Discover from './app/src/views/screens/Discover/Discover';
 import AddPost from './app/src/views/screens/AddPost/AddPost';
 import  Saved from './app/src/views/screens/Saved/Saved';
@@ -100,7 +101,6 @@ function MyTabs({route}) {
             width: 0,
             height: 2
           }
-
         },
         tabBarActiveTintColor: COLORS.secondary,
         headerShown: false,
@@ -108,7 +108,8 @@ function MyTabs({route}) {
 
       }}
     >
-      <Tab.Screen name="Feed" component={Feed}
+      <Tab.Screen
+       name="FeedNew" component={FeedNew}
         options={{
           title: 'Home',
           tabBarIcon: ({ color, focused }) => (
